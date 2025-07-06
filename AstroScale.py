@@ -34,7 +34,7 @@ class ImageViewer(QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
-        uic.loadUi("ImageViewer.ui", self)
+        uic.loadUi(resource_path("ImageViewer.ui"), self)
         self.setWindowTitle("AstroScale - FITS/Image Viewer")
         
 
