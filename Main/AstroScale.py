@@ -777,11 +777,11 @@ class ImageViewer(QtWidgets.QWidget):
         # Ajoute une barre discrète en bas à gauche du panel droit
         right_panel = self.findChild(QtWidgets.QWidget, "rightPanel")
         if right_panel is not None:
-            self.author_bar = QtWidgets.QLabel("Author : Necrom04", right_panel)
+            self.author_bar = QtWidgets.QLabel("Author : AstroSearch42", right_panel)
             self.author_bar.setStyleSheet("background: rgba(30,30,30,0.85); color: #F0EBE3; padding: 4px 12px; border-radius: 8px; font-size: 9pt; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;")
             self.author_bar.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
             self.author_bar.setFixedHeight(20)
-            self.author_bar.setFixedWidth(170)
+            self.author_bar.setFixedWidth(200)
             self.author_bar.raise_()
             self.position_author_bar()
             # Redéfinir resizeEvent du panel droit
