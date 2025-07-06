@@ -48,6 +48,7 @@ To create a standalone Windows executable (.exe) for SkyScale, follow these step
 3. In your project folder, run the following command (PowerShell or cmd), it might take a while:
    ```powershell
    pyinstaller --onefile --windowed \
+     --icon "objects_png/Icon/icon.ico" 
      --add-data "objects_png;objects_png" \
      --add-data "Main/ImageViewer.ui;Main" \
      --add-data "Library/distance_library.json;Library" \
@@ -62,7 +63,7 @@ To create a standalone Windows executable (.exe) for SkyScale, follow these step
    If you encounter issues with the multi-line command above, use the following single-line version instead:
 
    ```powershell
-   pyinstaller --onefile --windowed --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "preset;preset" Main/SkyScale.py
+   pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.ico" --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "preset;preset" Main/SkyScale.py
    ```
 
 4. The executable will be created in the `dist` folder as `SkyScale.exe`.
