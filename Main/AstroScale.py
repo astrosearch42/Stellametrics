@@ -226,9 +226,13 @@ class ImageViewer(QtWidgets.QWidget):
         self.save_last_preset_path(path)
 
     def get_preset_path(self):
-        # Retourne le chemin complet du preset courant (par défaut dans le dossier du script)
+        # Retourne le chemin complet du preset courant dans le dossier 'preset' à la racine du projet
         name = self.telescope_name.text().strip() or "default"
-        return resource_path(f"preset_{name}.json")
+        # Récupère le chemin absolu du dossier 'preset' à la racine du projet
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        preset_dir = os.path.join(project_root, "preset")
+        os.makedirs(preset_dir, exist_ok=True)
+        return os.path.join(preset_dir, f"preset_{name}.json")
 
     def load_last_preset_path(self):
         # Retourne le chemin du dernier preset depuis la variable de classe
