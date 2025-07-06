@@ -8,6 +8,19 @@ A PyQt5 application to visualize and compare astronomical images (FITS, PNG, JPG
 - Add reference objects (France, USA, Earth, Jupiter, ...)
 - Save and load presets
 - Generate a Windows executable
+- Convert SVG to ICO automatically with the provided script and personal CloudConvert's API 
+
+## Icon Conversion (SVG to ICO)
+If you want to use your own icon for the application:
+
+1. Convert your SVG to ICO using an online tool (e.g. https://cloudconvert.com/svg-to-ico).
+2. Place the ICO file in `objects_png/Icon/`.
+3. Use the provided script to convert all SVG files in that folder to ICO:
+   ```powershell
+   python objects_png/Icon/svg2ico.py
+   ```
+   
+> Note: Direct SVG to ICO conversion in Python without external dependencies or internet is not possible. Use a personal API key in CloudConvert.com or convert SVG to PNG to ICO (at the end you must have a `icon.ico` in the `objects_png/Icon/` folder).
 
 ## Installation 
 In a bash/cmd shell:
@@ -25,6 +38,7 @@ In a bash/cmd shell:
 4. Run the application:
    `python SkyScale.py`
 
+
 ## Building the Executable
 To create a standalone Windows executable (.exe) for SkyScale, follow these steps:
 1. Make sure all dependencies are installed in your environment:
@@ -39,7 +53,7 @@ To create a standalone Windows executable (.exe) for SkyScale, follow these step
      --add-data "Library/distance_library.json;Library" \
      --add-data "Library/de421.bsp;Library" \
      --add-data "preset;preset" \
-     Main/SkySclae.py
+     Main/SkyScale.py
    ```
    - `--onefile` creates a single .exe file
    - `--windowed` prevents a console window from opening
