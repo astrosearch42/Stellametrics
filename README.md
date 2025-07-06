@@ -19,7 +19,7 @@ In a bash/cmd shell:
    `<env name>/Scripts/activate`
    `cd <env name>`
 2. Clone the repository:
-   `git clone https://github.com/necrom04/AstroScale`
+   `git clone https://github.com/astrosearch42/AstroScale`
 3. Install dependencies:
    `pip install -r requirements.txt`
 4. Run the application:
@@ -60,5 +60,5 @@ To create a standalone Windows executable (.exe) for AstroScale, follow these st
 6. Double-click `dist/AstroScale.exe` (or your shortcut) to launch the application.
 
 ## Author
-- Pseudo : necrom04 
-- GitHub : https://github.com/necrom04
+- Pseudo : astrosearch42 
+- GitHub : https://github.com/astrosearch42
