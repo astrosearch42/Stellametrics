@@ -868,7 +868,7 @@ if __name__ == "__main__":
     """
     app.setStyleSheet(dark_stylesheet)
     win = ImageViewer()
-    icon_path = resource_path(os.path.join("Main", "votre_icon.ico"))
+    icon_path = resource_path(os.path.join("objects_png/Icon", "icon.ico"))
     win.setWindowIcon(QtGui.QIcon(icon_path))
     win.setWindowTitle("SkyScale  - FITS/Image Viewer")
     win.show()
