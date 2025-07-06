@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImageViewer</class>
+ <widget class="QWidget" name="ImageViewer">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>FITS/Image Viewer (PyQtGraph)</string>
+  </property>
+  <layout class="QHBoxLayout" name="mainLayout">
+   <item>
+    <widget class="QSplitter" name="mainSplitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QScrollArea" name="leftScroll">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="leftPanel">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>100</width>
+         <height>1072</height>
+        </rect>
+       </property>
+       <property name="minimumWidth">
+        <number>0</number>
+       </property>
+       <property name="maximumWidth">
+        <number>1200</number>
+       </property>
+       <layout class="QVBoxLayout" name="leftLayout">
+        <item>
+         <widget class="QPushButton" name="open_btn">
+          <property name="text">
+           <string>Open image</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="segment_btn">
+          <property name="text">
+           <string>Draw a segment</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="length_label">
+          <property name="text">
+           <string>Segment length:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="telescope_group">
+          <property name="title">
+           <string>Telescope characteristics</string>
+          </property>
+          <layout class="QFormLayout" name="telescope_layout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_telescope_name">
+             <property name="text">
+              <string>Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="telescope_name"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_telescope_diameter">
+             <property name="text">
+              <string>Diameter (mm):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="telescope_diameter"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_telescope_focal">
+             <property name="text">
+              <string>Focal length (mm):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="telescope_focal"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="barlow_group">
+          <property name="title">
+           <string>Barlow / Reducer</string>
+          </property>
+          <layout class="QVBoxLayout" name="barlow_layout">
+           <item>
+            <widget class="QCheckBox" name="barlow_checkbox">
+             <property name="text">
+              <string>Use barlow/reducer?</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="barlow_value_layout">
+             <item>
+              <widget class="QLabel" name="barlow_value_label">
+               <property name="text">
+                <string>Factor:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="barlow_value_edit"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="camera_group">
+          <property name="title">
+           <string>Camera characteristics</string>
+          </property>
+          <layout class="QFormLayout" name="camera_layout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_camera_pixel_size">
+             <property name="text">
+              <string>Pixel size (µm):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="camera_pixel_size"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="save_btn">
+          <property name="text">
+           <string>Save preset</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="load_btn">
+          <property name="text">
+           <string>Load preset</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="distance_group">
+          <property name="title">
+           <string>Object distance</string>
+          </property>
+          <layout class="QFormLayout" name="distance_layout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_object_distance">
+             <property name="text">
+              <string>Distance:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QHBoxLayout" name="distance_hbox">
+             <item>
+              <widget class="QLineEdit" name="object_distance"/>
+             </item>
+             <item>
+              <widget class="QComboBox" name="distance_unit">
+               <item>
+                <property name="text">
+                 <string>km</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>ly</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>pc</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>kpc</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Mpc</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="combo_btns_layout">
+             <item>
+              <widget class="QComboBox" name="distance_combo">
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="add_distance_btn">
+               <property name="text">
+                <string>Add distance</string>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="remove_distance_btn">
+               <property name="text">
+                <string>Remove distance</string>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="skyfield_group">
+          <property name="title">
+           <string>Astronomical object (Skyfield)</string>
+          </property>
+          <layout class="QFormLayout" name="skyfield_layout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_skyfield_object">
+             <property name="text">
+              <string>Object:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="skyfield_object_combo">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+             <item>
+              <property name="text">
+               <string>Moon</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Sun</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mercury</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Venus</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mars</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Jupiter</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Saturn</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Uranus</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Neptune</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Pluto</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_skyfield_date">
+             <property name="text">
+              <string>Date:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDateEdit" name="skyfield_date_edit">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+             <property name="displayFormat">
+              <string>yyyy-MM-dd</string>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QPushButton" name="skyfield_fill_btn">
+             <property name="text">
+              <string>Fill distance with Skyfield</string>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="calc_btn">
+          <property name="text">
+           <string>Calculate real length</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="real_length_label">
+          <property name="text">
+           <string>Real object length:</string>
+          </property>
+          <property name="font">
+           <font>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_object_for_scale">
+          <property name="text">
+           <string>Object for scale:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="object_selector">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <item>
+           <property name="text">
+            <string>Earth</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Jupiter</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="add_object_btn">
+          <property name="text">
+           <string>Add selected object</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="clear_objects_btn">
+          <property name="text">
+           <string>Clear all objects</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="save_object_btn">
+          <property name="text">
+           <string>Save image with objects</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="rightPanel">
+      <property name="minimumWidth">
+       <number>600</number>
+      </property>
+      <property name="maximumWidth">
+       <number>2000</number>
+      </property>
+      <layout class="QVBoxLayout" name="rightLayout">
+       <item>
+        <widget class="QLabel" name="image_label">
+         <property name="text">
+          <string>Image display area</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
