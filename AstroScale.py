@@ -127,6 +127,8 @@ class ImageViewer(QtWidgets.QWidget):
         self.load_last_preset()  # Will use file-based path
         self.load_last_image()   # Will use file-based path
 
+        self.add_author_bar()  # Ajout de la barre d'auteur
+
 
 ##################################################################################################################
     def update_mouse_coords(self, pos):
@@ -777,6 +779,36 @@ class ImageViewer(QtWidgets.QWidget):
         except Exception as e:
             print(f"Erreur lors du chargement du chemin preset : {e}")
         return ""
+
+    def add_author_bar(self):
+        # Ajoute une barre discrète en bas à gauche du panel droit
+        right_panel = self.findChild(QtWidgets.QWidget, "rightPanel")
+        if right_panel is not None:
+            self.author_bar = QtWidgets.QLabel("Author : Necrom04", right_panel)
+            self.author_bar.setStyleSheet("background: rgba(30,30,30,0.85); color: #F0EBE3; padding: 4px 12px; border-radius: 8px; font-size: 9pt; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;")
+            self.author_bar.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+            self.author_bar.setFixedHeight(20)
+            self.author_bar.setFixedWidth(170)
+            self.author_bar.raise_()
+            self.position_author_bar()
+            # Redéfinir resizeEvent du panel droit
+            right_panel.resizeEvent = self.wrap_right_panel_resize_event(right_panel.resizeEvent)
+
+    def position_author_bar(self):
+        # Place la barre en bas à gauche du panel droit
+        right_panel = self.findChild(QtWidgets.QWidget, "rightPanel")
+        if right_panel is not None and hasattr(self, 'author_bar'):
+            margin = 12
+            x = margin
+            y = right_panel.height() - self.author_bar.height() - margin
+            self.author_bar.move(x, y)
+
+    def wrap_right_panel_resize_event(self, old_resize_event):
+        def new_resize_event(event):
+            self.position_author_bar()
+            if callable(old_resize_event):
+                old_resize_event(event)
+        return new_resize_event
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
