@@ -38,6 +38,7 @@ To create a standalone Windows executable (.exe) for AstroScale, follow these st
      --add-data "Main/ImageViewer.ui;Main" \
      --add-data "Library/distance_library.json;Library" \
      --add-data "Library/de421.bsp;Library" \
+     --add-data "preset;preset" \
      Main/AstroScale.py
    ```
    - `--onefile` creates a single .exe file
@@ -47,7 +48,7 @@ To create a standalone Windows executable (.exe) for AstroScale, follow these st
    If you encounter issues with the multi-line command above, use the following single-line version instead:
 
    ```powershell
-   pyinstaller --onefile --windowed --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" Main/AstroScale.py
+   pyinstaller --onefile --windowed --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "preset;preset" Main/AstroScale.py
    ```
 
 4. The executable will be created in the `dist` folder as `AstroScale.exe`.
