@@ -1,4 +1,4 @@
-# AstroScale
+# SkyScale
 
 A PyQt5 application to visualize and compare astronomical images (FITS, PNG, JPG, etc.), measure distances, and add reference objects.
 
@@ -19,14 +19,14 @@ In a bash/cmd shell:
    `<env name>/Scripts/activate`
    `cd <env name>`
 2. Clone the repository:
-   `git clone https://github.com/astrosearch42/AstroScale`
+   `git clone https://github.com/astrosearch42/SkyScale`
 3. Install dependencies:
    `pip install -r requirements.txt`
 4. Run the application:
-   `python AstroScale.py`
+   `python SkyScale.py`
 
 ## Building the Executable
-To create a standalone Windows executable (.exe) for AstroScale, follow these steps:
+To create a standalone Windows executable (.exe) for SkyScale, follow these steps:
 1. Make sure all dependencies are installed in your environment:
    `pip install -r requirements.txt`
 2. Install PyInstaller if not already installed:
@@ -39,7 +39,7 @@ To create a standalone Windows executable (.exe) for AstroScale, follow these st
      --add-data "Library/distance_library.json;Library" \
      --add-data "Library/de421.bsp;Library" \
      --add-data "preset;preset" \
-     Main/AstroScale.py
+     Main/SkySclae.py
    ```
    - `--onefile` creates a single .exe file
    - `--windowed` prevents a console window from opening
@@ -48,17 +48,17 @@ To create a standalone Windows executable (.exe) for AstroScale, follow these st
    If you encounter issues with the multi-line command above, use the following single-line version instead:
 
    ```powershell
-   pyinstaller --onefile --windowed --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "preset;preset" Main/AstroScale.py
+   pyinstaller --onefile --windowed --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "preset;preset" Main/SkyScale.py
    ```
 
-4. The executable will be created in the `dist` folder as `AstroScale.exe`.
+4. The executable will be created in the `dist` folder as `SkyScale.exe`.
 
 5. (Optional) Create a shortcut to the executable:
-   - Open the `dist` folder where `AstroScale.exe` is located.
-   - Right-click on `AstroScale.exe` and select "Create shortcut".
+   - Open the `dist` folder where `SkyScale.exe` is located.
+   - Right-click on `SkyScale.exe` and select "Create shortcut".
    - Move the shortcut to your Desktop or any convenient location for quick access.
 
-6. Double-click `dist/AstroScale.exe` (or your shortcut) to launch the application.
+6. Double-click `dist/SkyScale.exe` (or your shortcut) to launch the application.
 
 ## Author
 - Pseudo : astrosearch42 

@@ -26,7 +26,7 @@ class ImageViewer(QtWidgets.QWidget):
         super().__init__()
         # Correction du chemin du fichier UI
         uic.loadUi(resource_path(os.path.join("Main", "ImageViewer.ui")), self)
-        self.setWindowTitle("AstroScale - FITS/Image Viewer")
+        self.setWindowTitle("SkyScale - FITS/Image Viewer")
         
 
         # Connexion des boutons aux méthodes
@@ -60,11 +60,6 @@ class ImageViewer(QtWidgets.QWidget):
             "Earth": {"image": resource_path(os.path.join("objects_png", "earth.png")), "diameter": 12742, "min_km": 100, "max_km": 2e6},
             "Jupiter": {"image": resource_path(os.path.join("objects_png", "jupiter.png")), "diameter": 139822, "min_km": 1000, "max_km": 1e8},
         }
-
-        # Remove QSettings for last image/preset path
-        # self.settings = QtCore.QSettings("AstroApp", "ImageViewer")
-        # self.last_image_path = self.settings.value("last_image_path", None, type=str)
-        # self.last_preset_path = self.settings.value("last_preset_path", None, type=str)
 
         # Variables pour stocker le dernier chemin d'image et de preset utilisés
         self.last_image_path = self.load_last_image_path()
@@ -873,6 +868,8 @@ if __name__ == "__main__":
     """
     app.setStyleSheet(dark_stylesheet)
     win = ImageViewer()
-    win.setWindowTitle("AstroScale - FITS/Image Viewer (PyQtGraph)")
+    icon_path = resource_path(os.path.join("Main", "votre_icon.ico"))
+    win.setWindowIcon(QtGui.QIcon(icon_path))
+    win.setWindowTitle("SkyScale  - FITS/Image Viewer")
     win.show()
     sys.exit(app.exec_())
