@@ -18,23 +18,14 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
-def user_data_path(filename):
-    # Utilise le dossier de l'utilisateur pour stocker les fichiers persistants
-    from pathlib import Path
-    appdata = os.getenv('APPDATA') or str(Path.home())
-    # Utilise le nom du script principal sans extension + '_appdata' comme nom de dossier
-    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-    folder = os.path.join(appdata, script_name + "_appdata")
-    os.makedirs(folder, exist_ok=True)
-    return os.path.join(folder, filename)
-
 class ImageViewer(QtWidgets.QWidget):
     LAST_IMAGE_PATH_FILE = ".last_image_path"
     LAST_PRESET_PATH_FILE = ".last_preset_path"
 
     def __init__(self):
         super().__init__()
-        uic.loadUi(resource_path("ImageViewer.ui"), self)
+        # Correction du chemin du fichier UI
+        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer.ui")), self)
         self.setWindowTitle("AstroScale - FITS/Image Viewer")
         
 
@@ -600,7 +591,8 @@ class ImageViewer(QtWidgets.QWidget):
             QtWidgets.QMessageBox.information(self, "Saved", f"Image saved as:\n{save_path}")
 
     def load_distance_library(self):
-        self.distance_library_path = resource_path("distance_library.json")
+        # Correction du chemin du fichier JSON
+        self.distance_library_path = resource_path(os.path.join("Library", "distance_library.json"))
         try:
             with open(self.distance_library_path, "r", encoding="utf-8") as f:
                 self.distance_library = json.load(f)
@@ -703,7 +695,8 @@ class ImageViewer(QtWidgets.QWidget):
             from skyfield.api import load
             ts = load.timescale()
             t = ts.utc(date_qt.year(), date_qt.month(), date_qt.day())
-            planets = load(resource_path('de421.bsp'))
+            # Correction du chemin du fichier .bsp
+            planets = load(resource_path(os.path.join("Library", "de421.bsp")))
             earth = planets['earth']
             # Mapping Skyfield
             skyfield_map = {
