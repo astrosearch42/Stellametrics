@@ -44,9 +44,6 @@
           <property name="text">
            <string>Open image</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -57,18 +54,12 @@
           <property name="checkable">
            <bool>true</bool>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:checked { background: #c7ecee; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="length_label">
           <property name="text">
            <string>Segment length:</string>
-          </property>
-          <property name="styleSheet">
-           <string>QLabel {font-weight: 500}</string>
           </property>
          </widget>
         </item>
@@ -77,60 +68,36 @@
           <property name="title">
            <string>Telescope characteristics</string>
           </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="telescope_layout">
            <item row="0" column="0">
             <widget class="QLabel" name="label_telescope_name">
              <property name="text">
               <string>Name:</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="telescope_name">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="telescope_name"/>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_telescope_diameter">
              <property name="text">
               <string>Diameter (mm):</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="telescope_diameter">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="telescope_diameter"/>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_telescope_focal">
              <property name="text">
               <string>Focal length (mm):</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="telescope_focal">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="telescope_focal"/>
            </item>
           </layout>
          </widget>
@@ -140,17 +107,11 @@
           <property name="title">
            <string>Barlow / Reducer</string>
           </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QVBoxLayout" name="barlow_layout">
            <item>
             <widget class="QCheckBox" name="barlow_checkbox">
              <property name="text">
               <string>Use barlow/reducer?</string>
-             </property>
-             <property name="styleSheet">
-              <string>QCheckBox { padding: 2px; } QCheckBox::indicator { width: 18px; height: 18px; }</string>
              </property>
             </widget>
            </item>
@@ -161,17 +122,10 @@
                <property name="text">
                 <string>Factor:</string>
                </property>
-               <property name="styleSheet">
-                <string>QLabel {}</string>
-               </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="barlow_value_edit">
-               <property name="styleSheet">
-                <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-               </property>
-              </widget>
+              <widget class="QLineEdit" name="barlow_value_edit"/>
              </item>
             </layout>
            </item>
@@ -183,26 +137,16 @@
           <property name="title">
            <string>Camera characteristics</string>
           </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="camera_layout">
            <item row="0" column="0">
             <widget class="QLabel" name="label_camera_pixel_size">
              <property name="text">
               <string>Pixel size (µm):</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="camera_pixel_size">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="camera_pixel_size"/>
            </item>
           </layout>
          </widget>
@@ -212,18 +156,12 @@
           <property name="text">
            <string>Save preset</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="load_btn">
           <property name="text">
            <string>Load preset</string>
-          </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
           </property>
          </widget>
         </item>
@@ -232,34 +170,21 @@
           <property name="title">
            <string>Object distance</string>
           </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="distance_layout">
            <item row="0" column="0">
             <widget class="QLabel" name="label_object_distance">
              <property name="text">
               <string>Distance:</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
            <item row="0" column="1">
             <layout class="QHBoxLayout" name="distance_hbox">
              <item>
-              <widget class="QLineEdit" name="object_distance">
-               <property name="styleSheet">
-                <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-               </property>
-              </widget>
+              <widget class="QLineEdit" name="object_distance"/>
              </item>
              <item>
               <widget class="QComboBox" name="distance_unit">
-               <property name="styleSheet">
-                <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
-               </property>
                <item>
                 <property name="text">
                  <string>km</string>
@@ -298,9 +223,6 @@
                  <pointsize>8</pointsize>
                 </font>
                </property>
-               <property name="styleSheet">
-                <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
-               </property>
               </widget>
              </item>
              <item>
@@ -308,8 +230,10 @@
                <property name="text">
                 <string>Add distance</string>
                </property>
-               <property name="styleSheet">
-                <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
                </property>
               </widget>
              </item>
@@ -318,8 +242,10 @@
                <property name="text">
                 <string>Remove distance</string>
                </property>
-               <property name="styleSheet">
-                <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
                </property>
               </widget>
              </item>
@@ -333,17 +259,11 @@
           <property name="title">
            <string>Astronomical object (Skyfield)</string>
           </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="skyfield_layout">
            <item row="0" column="0">
             <widget class="QLabel" name="label_skyfield_object">
              <property name="text">
               <string>Object:</string>
-             </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
              </property>
             </widget>
            </item>
@@ -353,9 +273,6 @@
               <font>
                <pointsize>8</pointsize>
               </font>
-             </property>
-             <property name="styleSheet">
-              <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
              </property>
              <item>
               <property name="text">
@@ -414,9 +331,6 @@
              <property name="text">
               <string>Date:</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
            <item row="1" column="1">
@@ -432,9 +346,6 @@
              <property name="calendarPopup">
               <bool>true</bool>
              </property>
-             <property name="styleSheet">
-              <string>QDateEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-             </property>
             </widget>
            </item>
            <item row="2" column="0" colspan="2">
@@ -442,8 +353,10 @@
              <property name="text">
               <string>Fill distance with Skyfield</string>
              </property>
-             <property name="styleSheet">
-              <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
              </property>
             </widget>
            </item>
@@ -454,9 +367,6 @@
          <widget class="QPushButton" name="calc_btn">
           <property name="text">
            <string>Calculate real length</string>
-          </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
           </property>
          </widget>
         </item>
@@ -469,18 +379,12 @@
            <font>
            </font>
           </property>
-          <property name="styleSheet">
-           <string>QLabel {font-weight: 500}</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_object_for_scale">
           <property name="text">
            <string>Object for scale:</string>
-          </property>
-          <property name="styleSheet">
-           <string>QLabel {font-weight: 500}</string>
           </property>
          </widget>
         </item>
@@ -490,9 +394,6 @@
            <font>
             <pointsize>8</pointsize>
            </font>
-          </property>
-          <property name="styleSheet">
-           <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
           </property>
           <item>
            <property name="text">
@@ -511,9 +412,6 @@
           <property name="text">
            <string>Add selected object</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -521,18 +419,12 @@
           <property name="text">
            <string>Clear all objects</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="save_object_btn">
           <property name="text">
            <string>Save image with objects</string>
-          </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
           </property>
          </widget>
         </item>
@@ -564,9 +456,6 @@
         <widget class="QLabel" name="image_label">
          <property name="text">
           <string>Image display area</string>
-         </property>
-         <property name="styleSheet">
-          <string>QLabel {}</string>
          </property>
         </widget>
        </item>

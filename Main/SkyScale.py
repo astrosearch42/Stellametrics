@@ -12,11 +12,104 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QGraphicsLineItem, QGraphicsPixmapItem
 from skyfield.api import load
 
+# My Package imports
+from StyleSheets import STYLESHEETS
+
 def resource_path(relative_path):
     """Permet d'accéder aux ressources embarquées avec PyInstaller."""
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
+
+
+
+class CustomTitleBar(QtWidgets.QWidget):
+    theme_changed = QtCore.pyqtSignal(str)  # Signal pour notifier le changement de thème
+    def __init__(self, parent=None, icon_path=None, title="SkyScale", theme_names=None, current_theme=None):
+        super().__init__(parent)
+        self.setFixedHeight(36)
+        self.parent = parent
+        self.icon_path = icon_path
+        self.title = title
+        self.setStyleSheet("""
+            background: #181a1b;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        """)
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(8, 0, 8, 0)
+        layout.setSpacing(15)
+        # Icon
+        self.icon_label = QtWidgets.QLabel()
+        if icon_path:
+            self.icon_label.setPixmap(QtGui.QPixmap(icon_path).scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        layout.addWidget(self.icon_label)
+        # Title
+        self.title_label = QtWidgets.QLabel(self.title)
+        self.title_label.setStyleSheet("color: #F0EBE3; font-size: 13pt; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;")
+        layout.addWidget(self.title_label)
+        # --- Ajout du sélecteur de thème ---
+        if theme_names:
+            self.theme_combo = QtWidgets.QComboBox()
+            self.theme_combo.setObjectName("themeComboBox")
+            self.theme_combo.addItems(theme_names)
+            if current_theme and current_theme in theme_names:
+                self.theme_combo.setCurrentText(current_theme)
+            self.theme_combo.setFixedWidth(110)
+            self.theme_combo.setToolTip("Changer le thème de l'application")
+            self.theme_combo.currentTextChanged.connect(self.on_theme_changed)
+            layout.addWidget(self.theme_combo)
+        layout.addStretch(5)
+        # Minimize
+        self.min_btn = QtWidgets.QPushButton("–")
+        self.min_btn.setFixedSize(28, 28)
+        self.min_btn.setStyleSheet("QPushButton { background: none; color: #F0EBE3; border: none; font-size: 16pt; } QPushButton:hover { background: #353b3c; }")
+        self.min_btn.clicked.connect(self.on_minimize)
+        layout.addWidget(self.min_btn)
+        # Maximize/Restore
+        self.max_btn = QtWidgets.QPushButton("□")
+        self.max_btn.setFixedSize(28, 28)
+        self.max_btn.setStyleSheet("QPushButton { background: none; color: #F0EBE3; border: none; font-size: 13pt; } QPushButton:hover { background: #353b3c; }")
+        self.max_btn.clicked.connect(self.on_max_restore)
+        layout.addWidget(self.max_btn)
+        # Close
+        self.close_btn = QtWidgets.QPushButton("✕")
+        self.close_btn.setFixedSize(28, 28)
+        self.close_btn.setStyleSheet("QPushButton { background: none; color: #F07178; border: none; font-size: 13pt; } QPushButton:hover { background: #b22222; color: white; }")
+        self.close_btn.clicked.connect(self.on_close)
+        layout.addWidget(self.close_btn)
+        self._drag_pos = None
+        self._is_maximized = False
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self._drag_pos = event.globalPos() - self.parent.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self._drag_pos and event.buttons() == QtCore.Qt.LeftButton:
+            self.parent.move(event.globalPos() - self._drag_pos)
+            event.accept()
+
+    def mouseDoubleClickEvent(self, event):
+        self.on_max_restore()
+
+    def on_minimize(self):
+        self.parent.showMinimized()
+
+    def on_max_restore(self):
+        if self.parent.isMaximized() or self._is_maximized:
+            self.parent.showNormal()
+            self._is_maximized = False
+        else:
+            self.parent.showMaximized()
+            self._is_maximized = True
+
+    def on_close(self):
+        self.parent.close()
+
+    def on_theme_changed(self, theme_name):
+        self.theme_changed.emit(theme_name)
 
 class ImageViewer(QtWidgets.QWidget):
     LAST_IMAGE_PATH_FILE = ".last_image_path"
@@ -25,8 +118,8 @@ class ImageViewer(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         # Correction du chemin du fichier UI
-        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer.ui")), self)
-        self.setWindowTitle("SkyScale - FITS/Image Viewer")
+        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer_save.ui")), self)
+        self.setWindowTitle("SkyScale")
         
 
         # Connexion des boutons aux méthodes
@@ -67,12 +160,12 @@ class ImageViewer(QtWidgets.QWidget):
 
         # Ajout du widget pyqtgraph dans le panneau de droite
         self.graphics_widget = pg.GraphicsLayoutWidget()
-        self.graphics_widget.setBackground("#232629")
+        self.update_graphics_background()
         self.img_view = self.graphics_widget.addViewBox()
         self.img_item = pg.ImageItem()
         self.img_view.addItem(self.img_item)
         self.img_view.setAspectLocked(True)
-        self.img_view.setBackgroundColor("#232629")
+        self.img_view.setBackgroundColor(self.graphics_widget.palette().color(QtGui.QPalette.Window).name())
         self.img_view.scene().sigMouseMoved.connect(self.update_mouse_coords)
         self.img_view.scene().installEventFilter(self)
         # Récupère le widget rightPanel et son layout
@@ -114,6 +207,31 @@ class ImageViewer(QtWidgets.QWidget):
         self.load_last_image()   # Will use file-based path
 
         self.add_author_bar()  # Ajout de la barre d'auteur
+
+        # --- Correction responsive boutons leftPanel ---
+        left_panel = self.findChild(QtWidgets.QWidget, "leftPanel")
+        if left_panel:
+            left_panel.setMinimumWidth(0)
+            left_panel.setMinimumSize(0, 0)
+            # Correction clé : forcer le leftPanel à suivre la largeur du scroll area
+            left_panel.setSizePolicy(QtWidgets.QSizePolicy.Ignored, left_panel.sizePolicy().verticalPolicy())
+            # Astuce : QSizePolicy.Ignored force le widget à toujours prendre la largeur imposée par son parent (splitter/scroll area),
+            # ce qui garantit qu'il se compresse parfaitement sans scroll horizontal ni superposition, même réduit à l'extrême.
+
+            layout = left_panel.layout()
+            if layout:
+                layout.setContentsMargins(2, 2, 2, 2)
+                layout.setSpacing(2)
+            # Appliquer Expanding à tous les enfants directs du leftPanel
+            for child in left_panel.findChildren((QtWidgets.QPushButton, QtWidgets.QLabel, QtWidgets.QGroupBox, QtWidgets.QComboBox, QtWidgets.QLineEdit, QtWidgets.QDateEdit)):
+                child.setSizePolicy(QtWidgets.QSizePolicy.Expanding, child.sizePolicy().verticalPolicy())
+                child.setMinimumWidth(0)
+                child.setMaximumWidth(16777215)
+            # Si le parent direct est un QSplitter, le rendre collapsible
+            splitter = left_panel.parent()
+            if isinstance(splitter, QtWidgets.QSplitter):
+                index = splitter.indexOf(left_panel)
+                splitter.setCollapsible(index, True)
 
 
 ##################################################################################################################
@@ -802,74 +920,126 @@ class ImageViewer(QtWidgets.QWidget):
                 old_resize_event(event)
         return new_resize_event
 
+    def update_graphics_background(self):
+        # Récupère la couleur de fond effective du widget (héritée du stylesheet)
+        pal = self.graphics_widget.palette()
+        bg_color = pal.color(self.graphics_widget.backgroundRole())
+        self.graphics_widget.setBackground(bg_color)
+        if hasattr(self, "img_view") and self.img_view is not None:
+            self.img_view.setBackgroundColor(bg_color)
+
+class FramelessImageViewer(ImageViewer):
+    def __init__(self, icon_path=None):
+        super().__init__()
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Window)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, False)
+        self.setObjectName("FramelessImageViewer")  # Pour le style global
+        # Supprimer le setStyleSheet local qui bloque le background
+        # self.setStyleSheet("border-radius: 10px; background: #232629; border: 1.2px solid #353b3c;")
+        # Title bar
+        self.title_bar = CustomTitleBar(self, icon_path=icon_path, title="SkyScale")
+        # Layout principal vertical
+        self._main_layout = QtWidgets.QVBoxLayout()
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
+        self._main_layout.setSpacing(0)
+        self._main_layout.addWidget(self.title_bar)
+        # Récupérer le layout existant (chargé par uic.loadUi)
+        old_layout = self.layout()
+        if old_layout:
+            # Créer un widget central et lui donner l'ancien layout
+            central_widget = QtWidgets.QWidget()
+            central_widget.setLayout(old_layout)
+            self._main_layout.addWidget(central_widget)
+        self.setLayout(self._main_layout)
+        # Pour le drag sur la bordure
+        self._drag_pos = None
+        self._resizing = False
+        self._resize_margin = 8
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            if self._on_edge(event.pos()):
+                self._resizing = True
+                self._resize_start = event.globalPos()
+                self._resize_geom = self.geometry()
+            else:
+                self._drag_pos = event.globalPos() - self.frameGeometry().topLeft()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._resizing:
+            diff = event.globalPos() - self._resize_start
+            new_geom = QtCore.QRect(self._resize_geom)
+            if self._resize_edge == 'right':
+                new_geom.setWidth(max(400, self._resize_geom.width() + diff.x()))
+            elif self._resize_edge == 'bottom':
+                new_geom.setHeight(max(300, self._resize_geom.height() + diff.y()))
+            elif self._resize_edge == 'left':
+                new_geom.setLeft(min(self._resize_geom.right() - 400, self._resize_geom.left() + diff.x()))
+            elif self._resize_edge == 'top':
+                new_geom.setTop(min(self._resize_geom.bottom() - 300, self._resize_geom.top() + diff.y()))
+            self.setGeometry(new_geom)
+        elif self._drag_pos and event.buttons() == QtCore.Qt.LeftButton:
+            self.move(event.globalPos() - self._drag_pos)
+        else:
+            self._update_cursor(event.pos())
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._drag_pos = None
+        self._resizing = False
+        super().mouseReleaseEvent(event)
+
+    def _on_edge(self, pos):
+        rect = self.rect()
+        margin = self._resize_margin
+        if abs(pos.x() - rect.right()) < margin:
+            self._resize_edge = 'right'
+            return True
+        if abs(pos.x() - rect.left()) < margin:
+            self._resize_edge = 'left'
+            return True
+        if abs(pos.y() - rect.bottom()) < margin:
+            self._resize_edge = 'bottom'
+            return True
+        if abs(pos.y() - rect.top()) < margin:
+            self._resize_edge = 'top'
+            return True
+        self._resize_edge = None
+        return False
+
+    def _update_cursor(self, pos):
+        if self._on_edge(pos):
+            if self._resize_edge in ('left', 'right'):
+                self.setCursor(QtCore.Qt.SizeHorCursor)
+            elif self._resize_edge in ('top', 'bottom'):
+                self.setCursor(QtCore.Qt.SizeVerCursor)
+        else:
+            self.setCursor(QtCore.Qt.ArrowCursor)
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     fontsize = 8.2
-    txt_color = "#F0EBE3"
-    # Appliquer un style sombre global
-    dark_stylesheet = f"""
-        QWidget {{ background-color: #232629; color: {txt_color}; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt; }}
-        QMenuBar, QMenu, QToolBar {{ background-color: #232629; color: {txt_color}; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt; }}
-        QPushButton {{ background-color: #353b3c; color: {txt_color}; border: 1px solid #444; border-radius: 4px; padding: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt; }}
-        QPushButton:hover {{ background-color: #3e4446; }}
-        QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
-            background-color: #2b2f31; color: {txt_color}; border: 1px solid #444; border-radius: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt;
-        }}
-        QDateEdit {{
-            background-color: #2b2f31; color: {txt_color}; border: 1px solid #444; border-radius: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt;
-        }}
-        QGroupBox {{
-            border: 1.5px solid #444; border-radius: 6px; margin-top: 6px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt;
-        }}
-        QGroupBox:title {{
-            color: {txt_color}; background: transparent; subcontrol-origin: margin; left: 10px; padding: 0 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt;
-        }}
-        QLabel {{ color: {txt_color}; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt; }}
-        QCheckBox, QRadioButton {{ color: {txt_color}; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt; }}
-        
-        QPushButton#open_btn {{
-            font-size: 11pt;
-            font-weight: bold;
-        }}      
+    icon_path = resource_path(os.path.join("objects_png/Icon", "icon2.ico"))
+    app.setWindowIcon(QtGui.QIcon(icon_path))
 
-        QPushButton#load_btn {{
-            margin-bottom: 20px;
-        }}  
+    # --- Chargement des stylesheets ---
+    current_theme = "Light"
+    app.setStyleSheet(STYLESHEETS[current_theme])
 
-        QGroupBox#skyfield_group {{
-            margin-bottom: 20px;
-        }}  
-        
-        QLabel#real_length_label {{
-            font-size: 11pt;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }}      
-
-        QLabel#length_label {{
-            font-size: 11pt;
-            font-weight: bold;
-        }}      
-        
-        QPushButton#save_object_btn {{
-            font-size: 12pt;
-            font-weight: bold;
-        }}  
-    
-        QTabWidget::pane {{ border: 1px solid #444; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt; }}
-        QTabBar::tab {{ background: #232629; color: {txt_color}; border: 1px solid #444; border-bottom: none; padding: 6px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: {fontsize}pt; }}
-        QTabBar::tab:selected {{ background: #353b3c; }}
-        # QScrollBar:vertical, QScrollBar:horizontal {{
-        #     background: #232629; width: 12px; margin: 0px;
-        # }}
-        # QScrollBar::handle:vertical, QScrollBar::handle:horizontal {{
-        #     background: #444; border-radius: 6px;
-        # }}
-    """
-    app.setStyleSheet(dark_stylesheet)
-    win = ImageViewer()
-    icon_path = resource_path(os.path.join("objects_png/Icon", "icon.ico"))
+    # --- Création de la fenêtre principale avec sélecteur de thème ---
+    win = FramelessImageViewer(icon_path=icon_path)
+    # Remplacer la barre de titre par une version avec sélecteur de thème
+    win.title_bar.deleteLater()
+    win.title_bar = CustomTitleBar(win, icon_path=icon_path, title="SkyScale", theme_names=list(STYLESHEETS.keys()), current_theme=current_theme)
+    win._main_layout.insertWidget(0, win.title_bar)
+    # Connexion du signal de changement de thème
+    def on_theme_changed(theme_name):
+        app.setStyleSheet(STYLESHEETS[theme_name])
+    win.title_bar.theme_changed.connect(on_theme_changed)
+    win.title_bar.theme_changed.connect(lambda _: win.update_graphics_background())
     win.setWindowIcon(QtGui.QIcon(icon_path))
     win.setWindowTitle("SkyScale  - FITS/Image Viewer")
+    win.update_graphics_background()
     win.show()
     sys.exit(app.exec_())
