@@ -357,12 +357,12 @@ windows11_stylesheet = f"""
         background-color: #f3f6fb;
     }}
     QWidget#CustomTitleBar {{
-        background-color: #e7eaf0;
+        background-color: #f3f6fb;
         border-top-left-radius: 14px;
         border-top-right-radius: 14px;
     }}
     QWidget#CustomTitleBar QLabel {{
-        color: #2563eb;
+        color: #536369;
         font-weight: 600;
     }}
 """

@@ -27,15 +27,13 @@ class CustomTitleBar(QtWidgets.QWidget):
     theme_changed = QtCore.pyqtSignal(str)  # Signal pour notifier le changement de thème
     def __init__(self, parent=None, icon_path=None, title="SkyScale", theme_names=None, current_theme=None):
         super().__init__(parent)
+        self.setObjectName("CustomTitleBar")
+        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.setFixedHeight(36)
         self.parent = parent
         self.icon_path = icon_path
         self.title = title
-        self.setStyleSheet("""
-            background: #181a1b;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        """)
+        # SUPPRESSION du setStyleSheet local pour laisser le style global agir
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(8, 0, 8, 0)
         layout.setSpacing(15)
@@ -46,7 +44,7 @@ class CustomTitleBar(QtWidgets.QWidget):
         layout.addWidget(self.icon_label)
         # Title
         self.title_label = QtWidgets.QLabel(self.title)
-        self.title_label.setStyleSheet("color: #F0EBE3; font-size: 13pt; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;")
+        self.title_label.setStyleSheet("font-size: 13pt; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;")
         layout.addWidget(self.title_label)
         # --- Ajout du sélecteur de thème ---
         if theme_names:
