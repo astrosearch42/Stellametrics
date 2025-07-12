@@ -113,7 +113,7 @@ class ImageViewer(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         # Correction du chemin du fichier UI
-        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer_testing.ui")), self)
+        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer.ui")), self)
         self.setWindowTitle("SkyScale")
         
         # Connexion des boutons aux méthodes
