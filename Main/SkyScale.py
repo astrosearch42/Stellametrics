@@ -1069,7 +1069,7 @@ if __name__ == "__main__":
             Charge une police précise si font_base_name est donné,
             sinon charge toutes les polices du dossier et retourne un dict {famille: chemin}.
             """
-            fonts_dir = os.path.join(os.path.dirname(__file__), "..", "Library", "fonts")
+            fonts_dir = resource_path(os.path.join("Library", "fonts"))
             font_families = {}
             if font_base_name:
                 otf_path = os.path.join(fonts_dir, f"{font_base_name}.otf")
