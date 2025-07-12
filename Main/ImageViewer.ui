@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>800</height>
+    <width>1400</width>
+    <height>900</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,25 +27,16 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>100</width>
-         <height>1072</height>
+         <y>-222</y>
+         <width>988</width>
+         <height>1098</height>
         </rect>
-       </property>
-       <property name="minimumWidth">
-        <number>0</number>
-       </property>
-       <property name="maximumWidth">
-        <number>1200</number>
        </property>
        <layout class="QVBoxLayout" name="leftLayout">
         <item>
          <widget class="QPushButton" name="open_btn">
           <property name="text">
            <string>Open image</string>
-          </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
           </property>
          </widget>
         </item>
@@ -57,9 +48,6 @@
           <property name="checkable">
            <bool>true</bool>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:checked { background: #c7ecee; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -67,68 +55,78 @@
           <property name="text">
            <string>Segment length:</string>
           </property>
-          <property name="styleSheet">
-           <string>QLabel {font-weight: 500}</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QGroupBox" name="telescope_group">
-          <property name="title">
-           <string>Telescope characteristics</string>
-          </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="telescope_layout">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="label_telescope_name">
              <property name="text">
               <string>Name:</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="telescope_name">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_telescope_diameter">
-             <property name="text">
-              <string>Diameter (mm):</string>
-             </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="telescope_diameter">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
+            <widget class="QLineEdit" name="telescope_name">
+             <property name="placeholderText">
+              <string>Name of the Setup</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="label_telescope_focal">
+            <widget class="QLabel" name="label_telescope_diameter">
              <property name="text">
-              <string>Focal length (mm):</string>
-             </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
+              <string>Diameter (mm):</string>
              </property>
             </widget>
            </item>
            <item row="2" column="1">
+            <widget class="QLineEdit" name="telescope_diameter">
+             <property name="placeholderText">
+              <string>Telescope Diamater</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_telescope_focal">
+             <property name="text">
+              <string>Focal length (mm):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
             <widget class="QLineEdit" name="telescope_focal">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
+             <property name="placeholderText">
+              <string>Telescope Focal Lenght</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="telescope_caract_title">
+             <property name="lineWidth">
+              <number>1</number>
+             </property>
+             <property name="midLineWidth">
+              <number>0</number>
+             </property>
+             <property name="text">
+              <string>Telescope characteristics</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::AutoText</enum>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="margin">
+              <number>1</number>
+             </property>
+             <property name="indent">
+              <number>-3</number>
+             </property>
+             <property name="openExternalLinks">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -137,20 +135,27 @@
         </item>
         <item>
          <widget class="QGroupBox" name="barlow_group">
-          <property name="title">
-           <string>Barlow / Reducer</string>
+          <property name="enabled">
+           <bool>true</bool>
           </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="title">
+           <string/>
           </property>
           <layout class="QVBoxLayout" name="barlow_layout">
+           <item>
+            <widget class="QLabel" name="barlow_reducer_title">
+             <property name="text">
+              <string>Barlow / Reducer</string>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QCheckBox" name="barlow_checkbox">
              <property name="text">
               <string>Use barlow/reducer?</string>
-             </property>
-             <property name="styleSheet">
-              <string>QCheckBox { padding: 2px; } QCheckBox::indicator { width: 18px; height: 18px; }</string>
              </property>
             </widget>
            </item>
@@ -161,15 +166,12 @@
                <property name="text">
                 <string>Factor:</string>
                </property>
-               <property name="styleSheet">
-                <string>QLabel {}</string>
-               </property>
               </widget>
              </item>
              <item>
               <widget class="QLineEdit" name="barlow_value_edit">
-               <property name="styleSheet">
-                <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
+               <property name="placeholderText">
+                <string>Barlow or reducer factor</string>
                </property>
               </widget>
              </item>
@@ -180,27 +182,25 @@
         </item>
         <item>
          <widget class="QGroupBox" name="camera_group">
-          <property name="title">
-           <string>Camera characteristics</string>
-          </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="camera_layout">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="label_camera_pixel_size">
              <property name="text">
               <string>Pixel size (µm):</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="camera_pixel_size">
+             <property name="placeholderText">
+              <string>Pixel size of the Camera</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="camera_pixel_size">
-             <property name="styleSheet">
-              <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="camera_caract_title">
+             <property name="text">
+              <string>Camera characteristics</string>
              </property>
             </widget>
            </item>
@@ -212,9 +212,6 @@
           <property name="text">
            <string>Save preset</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -222,44 +219,29 @@
           <property name="text">
            <string>Load preset</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QGroupBox" name="distance_group">
-          <property name="title">
-           <string>Object distance</string>
-          </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="distance_layout">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="label_object_distance">
              <property name="text">
               <string>Distance:</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="1" column="1">
             <layout class="QHBoxLayout" name="distance_hbox">
              <item>
               <widget class="QLineEdit" name="object_distance">
-               <property name="styleSheet">
-                <string>QLineEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
+               <property name="placeholderText">
+                <string>Body-Earth</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QComboBox" name="distance_unit">
-               <property name="styleSheet">
-                <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
-               </property>
                <item>
                 <property name="text">
                  <string>km</string>
@@ -289,7 +271,7 @@
              </item>
             </layout>
            </item>
-           <item row="1" column="0" colspan="2">
+           <item row="2" column="0" colspan="2">
             <layout class="QHBoxLayout" name="combo_btns_layout">
              <item>
               <widget class="QComboBox" name="distance_combo">
@@ -298,64 +280,60 @@
                  <pointsize>8</pointsize>
                 </font>
                </property>
-               <property name="styleSheet">
-                <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
-               </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="add_distance_btn">
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Add distance</string>
-               </property>
-               <property name="styleSheet">
-                <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="remove_distance_btn">
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Remove distance</string>
-               </property>
-               <property name="styleSheet">
-                <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
                </property>
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="object_distance_title">
+             <property name="text">
+              <string>Object distance</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
         </item>
         <item>
          <widget class="QGroupBox" name="skyfield_group">
-          <property name="title">
-           <string>Astronomical object (Skyfield)</string>
-          </property>
-          <property name="styleSheet">
-           <string>QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; margin-top: 8px; font-weight: bold; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }</string>
-          </property>
           <layout class="QFormLayout" name="skyfield_layout">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="label_skyfield_object">
              <property name="text">
               <string>Object:</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="1" column="1">
             <widget class="QComboBox" name="skyfield_object_combo">
              <property name="font">
               <font>
                <pointsize>8</pointsize>
               </font>
-             </property>
-             <property name="styleSheet">
-              <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
              </property>
              <item>
               <property name="text">
@@ -409,17 +387,14 @@
              </item>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="label_skyfield_date">
              <property name="text">
               <string>Date:</string>
              </property>
-             <property name="styleSheet">
-              <string>QLabel {}</string>
-             </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QDateEdit" name="skyfield_date_edit">
              <property name="font">
               <font>
@@ -427,23 +402,29 @@
               </font>
              </property>
              <property name="displayFormat">
-              <string>yyyy-MM-dd</string>
+              <string>dd-MM-yyyy</string>
              </property>
              <property name="calendarPopup">
               <bool>true</bool>
              </property>
-             <property name="styleSheet">
-              <string>QDateEdit { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; }</string>
-             </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="3" column="0" colspan="2">
             <widget class="QPushButton" name="skyfield_fill_btn">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Fill distance with Skyfield</string>
              </property>
-             <property name="styleSheet">
-              <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="astro_obj_skyfield_title">
+             <property name="text">
+              <string>Astronomical Object - Skyfield</string>
              </property>
             </widget>
            </item>
@@ -455,22 +436,15 @@
           <property name="text">
            <string>Calculate real length</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="real_length_label">
+          <property name="font">
+           <font/>
+          </property>
           <property name="text">
            <string>Real object length:</string>
-          </property>
-          <property name="font">
-           <font>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string>QLabel {font-weight: 500}</string>
           </property>
          </widget>
         </item>
@@ -478,9 +452,6 @@
          <widget class="QLabel" name="label_object_for_scale">
           <property name="text">
            <string>Object for scale:</string>
-          </property>
-          <property name="styleSheet">
-           <string>QLabel {font-weight: 500}</string>
           </property>
          </widget>
         </item>
@@ -490,9 +461,6 @@
            <font>
             <pointsize>8</pointsize>
            </font>
-          </property>
-          <property name="styleSheet">
-           <string>QComboBox { border: 1px solid #4A90E2; border-radius: 6px; padding: 4px; background: #f7faff; } QComboBox::drop-down { border: none; }</string>
           </property>
           <item>
            <property name="text">
@@ -511,9 +479,6 @@
           <property name="text">
            <string>Add selected object</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -521,18 +486,12 @@
           <property name="text">
            <string>Clear all objects</string>
           </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="save_object_btn">
           <property name="text">
            <string>Save image with objects</string>
-          </property>
-          <property name="styleSheet">
-           <string>QPushButton { border-radius: 7px; border: none; padding: 6px 14px; background: #e0e5ec; box-shadow: 2px 2px 6px #babecc, -2px -2px 6px #ffffff; transition: background 0.2s; } QPushButton:hover { background: #f5f6fa; } QPushButton:pressed { background: #d1d9e6; }</string>
           </property>
          </widget>
         </item>
@@ -553,20 +512,14 @@
       </widget>
      </widget>
      <widget class="QWidget" name="rightPanel">
-      <property name="minimumWidth">
-       <number>600</number>
-      </property>
-      <property name="maximumWidth">
-       <number>2000</number>
-      </property>
       <layout class="QVBoxLayout" name="rightLayout">
+       <property name="spacing">
+        <number>12</number>
+       </property>
        <item>
         <widget class="QLabel" name="image_label">
          <property name="text">
           <string>Image display area</string>
-         </property>
-         <property name="styleSheet">
-          <string>QLabel {}</string>
          </property>
         </widget>
        </item>

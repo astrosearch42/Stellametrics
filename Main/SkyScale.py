@@ -9,18 +9,16 @@ from PIL import Image, ImageOps
 import json
 from PyQt5.QtGui import QPen, QPixmap, QFontDatabase
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QGraphicsLineItem, QGraphicsPixmapItem
+from PyQt5.QtWidgets import QGraphicsLineItem, QGraphicsPixmapItem, QGraphicsDropShadowEffect
 from skyfield.api import load
-
-# My Package imports
-from StyleSheets import STYLESHEETS
+import glob
+import traceback
 
 def resource_path(relative_path):
     """Permet d'accéder aux ressources embarquées avec PyInstaller."""
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
-
 
 
 class CustomTitleBar(QtWidgets.QWidget):
@@ -44,7 +42,6 @@ class CustomTitleBar(QtWidgets.QWidget):
         layout.addWidget(self.icon_label)
         # Title
         self.title_label = QtWidgets.QLabel(self.title)
-        self.title_label.setStyleSheet("font-size: 13pt; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;")
         layout.addWidget(self.title_label)
         # --- Ajout du sélecteur de thème ---
         if theme_names:
@@ -53,27 +50,27 @@ class CustomTitleBar(QtWidgets.QWidget):
             self.theme_combo.addItems(theme_names)
             if current_theme and current_theme in theme_names:
                 self.theme_combo.setCurrentText(current_theme)
-            self.theme_combo.setFixedWidth(110)
+            self.theme_combo.setFixedWidth(140)
             self.theme_combo.setToolTip("Changer le thème de l'application")
             self.theme_combo.currentTextChanged.connect(self.on_theme_changed)
             layout.addWidget(self.theme_combo)
         layout.addStretch(5)
         # Minimize
         self.min_btn = QtWidgets.QPushButton("–")
+        self.min_btn.setObjectName("minimizeButton")
         self.min_btn.setFixedSize(28, 28)
-        self.min_btn.setStyleSheet("QPushButton { background: none; color: #F0EBE3; border: none; font-size: 16pt; } QPushButton:hover { background: #353b3c; }")
         self.min_btn.clicked.connect(self.on_minimize)
         layout.addWidget(self.min_btn)
         # Maximize/Restore
         self.max_btn = QtWidgets.QPushButton("□")
+        self.max_btn.setObjectName("maximizeButton")
         self.max_btn.setFixedSize(28, 28)
-        self.max_btn.setStyleSheet("QPushButton { background: none; color: #F0EBE3; border: none; font-size: 13pt; } QPushButton:hover { background: #353b3c; }")
         self.max_btn.clicked.connect(self.on_max_restore)
         layout.addWidget(self.max_btn)
         # Close
         self.close_btn = QtWidgets.QPushButton("✕")
+        self.close_btn.setObjectName("closeButton")
         self.close_btn.setFixedSize(28, 28)
-        self.close_btn.setStyleSheet("QPushButton { background: none; color: #F07178; border: none; font-size: 13pt; } QPushButton:hover { background: #b22222; color: white; }")
         self.close_btn.clicked.connect(self.on_close)
         layout.addWidget(self.close_btn)
         self._drag_pos = None
@@ -116,10 +113,9 @@ class ImageViewer(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         # Correction du chemin du fichier UI
-        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer_save.ui")), self)
+        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer_testing.ui")), self)
         self.setWindowTitle("SkyScale")
         
-
         # Connexion des boutons aux méthodes
         self.open_btn.clicked.connect(self.open_image)
         self.segment_btn.clicked.connect(self.toggle_segment_mode)
@@ -219,7 +215,7 @@ class ImageViewer(QtWidgets.QWidget):
             layout = left_panel.layout()
             if layout:
                 layout.setContentsMargins(2, 2, 2, 2)
-                layout.setSpacing(2)
+                
             # Appliquer Expanding à tous les enfants directs du leftPanel
             for child in left_panel.findChildren((QtWidgets.QPushButton, QtWidgets.QLabel, QtWidgets.QGroupBox, QtWidgets.QComboBox, QtWidgets.QLineEdit, QtWidgets.QDateEdit)):
                 child.setSizePolicy(QtWidgets.QSizePolicy.Expanding, child.sizePolicy().verticalPolicy())
@@ -231,6 +227,39 @@ class ImageViewer(QtWidgets.QWidget):
                 index = splitter.indexOf(left_panel)
                 splitter.setCollapsible(index, True)
 
+
+##################################################################################################################
+
+        self.apply_button_effects()
+    def apply_button_effects(self):
+        """
+        Applique les effets visuels sur tous les QPushButton de l'UI.
+        """
+        def set_shadow_color(btn, color):
+            effect = btn.graphicsEffect()
+            if isinstance(effect, QGraphicsDropShadowEffect):
+                effect.setColor(QtGui.QColor(color))
+
+        for btn in self.findChildren(QtWidgets.QPushButton):
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(18)
+            shadow.setColor(QtGui.QColor(38, 99, 235, 160))  # couleur normale
+            shadow.setOffset(0, 4)
+            btn.setGraphicsEffect(shadow)
+            if btn.isCheckable():
+                def on_toggle(checked, b=btn):
+                    set_shadow_color(b, "#7700ff" if checked else "#2663eb")
+                btn.toggled.connect(on_toggle)
+            else:
+                btn.pressed.connect(lambda b=btn: set_shadow_color(b, "#7700ff"))
+                btn.released.connect(lambda b=btn: set_shadow_color(b, "#2663eb"))
+        # btn = self.findChild(QtWidgets.QPushButton, "open_btn")
+        # if btn:
+        #     shadow = QGraphicsDropShadowEffect()
+        #     shadow.setBlurRadius(18)
+        #     shadow.setColor(QtGui.QColor(88, 64, 67, 160))
+        #     shadow.setOffset(0, 4)
+        #     btn.setGraphicsEffect(shadow)
 
 ##################################################################################################################
     def update_mouse_coords(self, pos):
@@ -1015,29 +1044,97 @@ class FramelessImageViewer(ImageViewer):
         else:
             self.setCursor(QtCore.Qt.ArrowCursor)
 
+def save_last_theme(theme_name):
+    try:
+        with open(".last_theme", "w", encoding="utf-8") as f:
+            f.write(theme_name)
+    except Exception as e:
+        print(f"Erreur lors de la sauvegarde du thème : {e}")
+
+def load_last_theme():
+    try:
+        if os.path.exists(".last_theme"):
+            with open(".last_theme", "r", encoding="utf-8") as f:
+                return f.read().strip()
+    except Exception as e:
+        print(f"Erreur lors du chargement du thème : {e}")
+    return None
+
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    fontsize = 8.2
-    icon_path = resource_path(os.path.join("objects_png/Icon", "icon2.ico"))
-    app.setWindowIcon(QtGui.QIcon(icon_path))
+    try:
+        app = QtWidgets.QApplication(sys.argv)
+        # Chargement des polices personnalisée
+        def load_fonts(font_base_name=None):
+            """
+            Charge une police précise si font_base_name est donné,
+            sinon charge toutes les polices du dossier et retourne un dict {famille: chemin}.
+            """
+            fonts_dir = os.path.join(os.path.dirname(__file__), "..", "Library", "fonts")
+            font_families = {}
+            if font_base_name:
+                otf_path = os.path.join(fonts_dir, f"{font_base_name}.otf")
+                ttf_path = os.path.join(fonts_dir, f"{font_base_name}.ttf")
+                if os.path.exists(otf_path):
+                    font_path = otf_path
+                elif os.path.exists(ttf_path):
+                    font_path = ttf_path
+                else:
+                    raise RuntimeError(f"Font file not found: {otf_path} or {ttf_path}")
+                font_id = QFontDatabase.addApplicationFont(font_path)
+                if font_id == -1:
+                    raise RuntimeError(f"Failed to load font: {font_path}")
+                families = QFontDatabase.applicationFontFamilies(font_id)
+                if families:
+                    font_families[families[0]] = font_path
+            else:
+                for file in os.listdir(fonts_dir):
+                    if file.lower().endswith(('.ttf', '.otf')):
+                        font_path = os.path.join(fonts_dir, file)
+                        font_id = QFontDatabase.addApplicationFont(font_path)
+                        if font_id != -1:
+                            families = QFontDatabase.applicationFontFamilies(font_id)
+                            if families:
+                                font_families[families[0]] = font_path
+                        else:
+                            raise RuntimeError(f"Failed to load font: {font_path}")
+            return font_families
 
-    # --- Chargement des stylesheets ---
-    current_theme = "Light"
-    app.setStyleSheet(STYLESHEETS[current_theme])
+        # Utilisation :
+        FONT_FAMILIES = load_fonts() # charge toutes les polices
+        # serena_family = list(load_fonts("Serena").keys())[0] # charge une police précise
 
-    # --- Création de la fenêtre principale avec sélecteur de thème ---
-    win = FramelessImageViewer(icon_path=icon_path)
-    # Remplacer la barre de titre par une version avec sélecteur de thème
-    win.title_bar.deleteLater()
-    win.title_bar = CustomTitleBar(win, icon_path=icon_path, title="SkyScale", theme_names=list(STYLESHEETS.keys()), current_theme=current_theme)
-    win._main_layout.insertWidget(0, win.title_bar)
-    # Connexion du signal de changement de thème
-    def on_theme_changed(theme_name):
-        app.setStyleSheet(STYLESHEETS[theme_name])
-    win.title_bar.theme_changed.connect(on_theme_changed)
-    win.title_bar.theme_changed.connect(lambda _: win.update_graphics_background())
-    win.setWindowIcon(QtGui.QIcon(icon_path))
-    win.setWindowTitle("SkyScale  - FITS/Image Viewer")
-    win.update_graphics_background()
-    win.show()
-    sys.exit(app.exec_())
+
+        icon_path = resource_path(os.path.join("objects_png/Icon", "icon2.ico"))
+        app.setWindowIcon(QtGui.QIcon(icon_path))
+
+        # --- Chargement des stylesheets ---
+        STYLESHEETS = {}
+        styles_dir = os.path.join(os.path.dirname(__file__), "StyleSheets")
+        for path in glob.glob(os.path.join(styles_dir, "*.qss")):
+            theme_name = os.path.splitext(os.path.basename(path))[0].capitalize()
+            with open(path, "r", encoding="utf-8") as f:
+                STYLESHEETS[theme_name] = f.read()
+
+        last_theme = load_last_theme()
+        current_theme = last_theme if last_theme in STYLESHEETS else "Light"
+        app.setStyleSheet(STYLESHEETS[current_theme])
+
+        # --- Création de la fenêtre principale avec sélecteur de thème ---
+        win = FramelessImageViewer(icon_path=icon_path)
+        # Remplacer la barre de titre par une version avec sélecteur de thème
+        win.title_bar.deleteLater()
+        win.title_bar = CustomTitleBar(win, icon_path=icon_path, title="SkyScale", theme_names=list(STYLESHEETS.keys()), current_theme=current_theme)
+        win._main_layout.insertWidget(0, win.title_bar)
+        # Connexion du signal de changement de thème
+        def on_theme_changed(theme_name):
+            app.setStyleSheet(STYLESHEETS[theme_name])
+            save_last_theme(theme_name)
+        win.title_bar.theme_changed.connect(on_theme_changed)
+        win.title_bar.theme_changed.connect(lambda _: win.update_graphics_background())
+        win.setWindowIcon(QtGui.QIcon(icon_path))
+        win.setWindowTitle("SkyScale  - FITS/Image Viewer")
+        win.update_graphics_background()
+        win.show()
+        sys.exit(app.exec_())
+    except Exception:
+        traceback.print_exc()

@@ -1,0 +1,57 @@
+QWidget { background-color: #f5f5f5; color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
+QMenuBar, QMenu, QToolBar { background-color: #f5f5f5; color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
+QPushButton { background-color: #e0e0e0; color: #292826; border: 1px solid #bbb; border-radius: 4px; padding: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
+QPushButton:hover { background-color: #3e4446; }
+QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {
+    background-color: #fff; color: #292826; border: 1px solid #bbb; border-radius: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+}
+QDateEdit {
+    background-color: #fff; color: #292826; border: 1px solid #bbb; border-radius: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+}
+QGroupBox {
+    border: 1.5px solid #bbb; border-radius: 6px; margin-top: 6px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+}
+QGroupBox:title {
+    color: #292826; background: transparent; subcontrol-origin: margin; left: 10px; padding: 0 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+}
+QLabel { color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
+QCheckBox, QRadioButton { color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
+QPushButton#open_btn { font-size: 11pt; font-weight: bold; }      
+QPushButton#load_btn { margin-bottom: 20px; }  
+QGroupBox#skyfield_group { margin-bottom: 20px; }  
+QLabel#real_length_label { font-size: 11pt; font-weight: bold; margin-bottom: 12px; }      
+QLabel#length_label { font-size: 11pt; font-weight: bold; }      
+QPushButton#save_object_btn { font-size: 12pt; font-weight: bold; }  
+QTabWidget::pane { border: 1px solid #bbb; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
+QTabBar::tab { background: #f5f5f5; color: #292826; border: 1px solid #bbb; border-bottom: none; padding: 6px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
+QTabBar::tab:selected { background: #353b3c; }
+QWidget#FramelessImageViewer { border-radius: 10px; border: 1.2px solid #353b3c; background-color: #232629; }
+QWidget#CustomTitleBar { background-color: #979797; }
+QWidget#CustomTitleBar QLabel { color: #292826; }
+QComboBox#themeComboBox {
+    background-color: #f0f0f0;
+    color: #292826;
+    border: 1.2px solid #353b3c;
+    border-radius: 6px;
+    padding: 2px 18px 2px 8px;
+    min-width: 90px;
+    font-weight: bold;
+}
+QComboBox#themeComboBox QAbstractItemView {
+    background-color: #f5f5f5;
+    color: #292826;
+    border: 1.2px solid #353b3c;
+    selection-background-color: #abb3ba;
+    selection-color: #292826;
+}
+
+
+/*
+txt_color_lightcss = "#292826"
+bg_light = "#f5f5f5"
+bg_input_light = "#fff"
+bg_btn_light = "#e0e0e0"
+border_light = "#bbb"
+bg_combo_light = "#f0f0f0"
+bg_titlebar_light = "#979797"
+*/
