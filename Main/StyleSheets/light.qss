@@ -1,57 +1,221 @@
-QWidget { background-color: #f5f5f5; color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
-QMenuBar, QMenu, QToolBar { background-color: #f5f5f5; color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
-QPushButton { background-color: #e0e0e0; color: #292826; border: 1px solid #bbb; border-radius: 4px; padding: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
-QPushButton:hover { background-color: #3e4446; }
-QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {
-    background-color: #fff; color: #292826; border: 1px solid #bbb; border-radius: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+
+/* Styles communs */
+QWidget {
+    background-color: transparent;
+    color: #232629;
+    font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;
 }
-QDateEdit {
-    background-color: #fff; color: #292826; border: 1px solid #bbb; border-radius: 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+
+QPushButton {
+    border: none;
+    border-radius: 10px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #97b3c1ff, stop:1 #f5f5f5);
+    color: #232629;
+    font-size: 11pt;
+    min-width: 50px;
+    min-height: 35px;
+    padding: 5px 10px;
+    letter-spacing: 1px;
+}
+QPushButton:hover, QPushButton:pressed, QPushButton#segment_btn:checked {
+    background: #8cd5ff;
+}
+
+QTextEdit, QPlainTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {
+    background: #EEEEFF;
+    border: 1.5px solid #47476bff;
+    border-radius: 8px;
+    color: #232629;
+    font-size: 8.2pt;
+    padding: 6px;
+}
+QTextEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+    border: 2px solid #7700ff;
+    background: #353b3c;
+}
+QLineEdit {
+    font-size: 16px;
+    padding: 10px 10px 10px 5px;
+    border: none;
+    border-bottom: 2px solid #378dbf;
+    background: transparent;
+    color: #232629;
+}
+QLineEdit:focus {
+    border-bottom: 2px solid #7700ff;
+}
+QLineEdit[placeholderText] {
+    color: #232629;
 }
 QGroupBox {
-    border: 1.5px solid #bbb; border-radius: 6px; margin-top: 6px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+    border: 1.5px solid #606075ff;
+    border-radius: 12px;
+    margin-top: 8px;
+    background: #f5f5f5;
+    padding-top: 10px;
+    font-size: 8.2pt;
 }
-QGroupBox:title {
-    color: #292826; background: transparent; subcontrol-origin: margin; left: 10px; padding: 0 4px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt;
+
+/* Titres des GroupBox */
+QLabel#telescope_caract_title,
+QLabel#barlow_reducer_title,
+QLabel#camera_caract_title,
+QLabel#object_distance_title,
+QLabel#astro_obj_skyfield_title {
+    background: transparent;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: italic;
+    color: #232629;
+    margin-bottom: 8px;
 }
-QLabel { color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
-QCheckBox, QRadioButton { color: #292826; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
-QPushButton#open_btn { font-size: 11pt; font-weight: bold; }      
-QPushButton#load_btn { margin-bottom: 20px; }  
-QGroupBox#skyfield_group { margin-bottom: 20px; }  
-QLabel#real_length_label { font-size: 11pt; font-weight: bold; margin-bottom: 12px; }      
-QLabel#length_label { font-size: 11pt; font-weight: bold; }      
-QPushButton#save_object_btn { font-size: 12pt; font-weight: bold; }  
-QTabWidget::pane { border: 1px solid #bbb; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
-QTabBar::tab { background: #f5f5f5; color: #292826; border: 1px solid #bbb; border-bottom: none; padding: 6px; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif; font-size: 8.2pt; }
-QTabBar::tab:selected { background: #353b3c; }
-QWidget#FramelessImageViewer { border-radius: 10px; border: 1.2px solid #353b3c; background-color: #232629; }
-QWidget#CustomTitleBar { background-color: #979797; }
-QWidget#CustomTitleBar QLabel { color: #292826; }
-QComboBox#themeComboBox {
-    background-color: #f0f0f0;
-    color: #292826;
-    border: 1.2px solid #353b3c;
-    border-radius: 6px;
-    padding: 2px 18px 2px 8px;
-    min-width: 90px;
+QLabel {
+    color: #232629;
+    font-size: 8.2pt;
+}
+QLabel#real_length_label,
+QLabel#length_label {
+    font-size: 11pt;
     font-weight: bold;
 }
-QComboBox#themeComboBox QAbstractItemView {
-    background-color: #f5f5f5;
-    color: #292826;
-    border: 1.2px solid #353b3c;
-    selection-background-color: #abb3ba;
-    selection-color: #292826;
+QLabel#real_length_label {
+    margin-bottom: 12px;
 }
 
+QCheckBox, QRadioButton {
+    padding: 3px;
+    color: #232629;
+    font-size: 8.2pt;
+}
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    border: 1.5px solid #47476bff;
+    background: #f5f5f5;
+}
+QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+    background: #7700ff;
+    border: 1.5px solid #7700ff;
+}
 
-/*
-txt_color_lightcss = "#292826"
-bg_light = "#f5f5f5"
-bg_input_light = "#fff"
-bg_btn_light = "#e0e0e0"
-border_light = "#bbb"
-bg_combo_light = "#f0f0f0"
-bg_titlebar_light = "#979797"
-*/
+QComboBox QAbstractItemView {
+    background: #f5f5f5;
+    border: 1.5px solid #47476bff;
+    selection-background-color: #EEEEFF;
+    border-radius: 8px;
+    color: #232629;
+}
+
+QTabWidget::pane {
+    border: 1.5px solid #47476bff;
+    border-radius: 12px;
+    background: #f5f5f5;
+}
+QTabBar::tab {
+    background: #353b3c;
+    color: #232629;
+    border: 1.5px solid #47476bff;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 8px 18px;
+    margin-right: 2px;
+}
+QTabBar::tab:selected {
+    background: #f5f5f5;
+    color: #7700ff;
+    font-weight: 600;
+}
+
+/* Exceptions et cas particuliers */
+QComboBox#distance_unit {
+    max-width: 40px;
+}
+QComboBox#distance_combo {
+    max-width: 130px;
+}
+QDateEdit {
+    background: #f5f5f5;
+    border: 1.5px solid #444;
+    border-radius: 8px;
+    color: #232629;
+    font-size: 8.2pt;
+    min-height: 40px;
+    max-width: 120px;
+}
+QWidget#mainLayout {
+    border-radius: 24px;
+    border: none;
+    background-color: #f5f5f5;
+}
+QWidget#FramelessImageViewer {
+    border-radius: 14px;
+    border: 1.5px solid #353b3c;
+    background-color: #f5f5f5;
+}
+QWidget#CustomTitleBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f5f5f5, stop:1 #97b3c1ff); /**/
+    border-radius: 7px;
+    border-top: 2.5px solid #353b3c;
+    border-left: 1.5px solid #353b3c;
+    border-right: 1.5px solid #353b3c;
+    border-bottom: 3px solid #0f1e66;
+}
+
+QSplitter#mainSplitter {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f5f5f5, stop:1 #97b3c1ff);
+    border-top: 3px solid #353b3c;
+    border-left: 3px solid #353b3c;
+    border-right: 3px solid #353b3c;
+    border-bottom: 3px solid #0f1e66;
+    border-radius: 15px;
+}
+QWidget#titleBarBtnWidget {
+    background: transparent; /*regit le layout des boutons de droites*/
+}
+QWidget#CustomTitleBar QLabel#title_label {
+    font-size: 15pt;
+    font-weight: 700;
+    color: #232629;
+    letter-spacing: 1px;
+}
+QWidget#CustomTitleBar QComboBox {
+    font-size: 11pt;
+    border-radius: 8px;
+    min-width: 120px;
+    max-width: 160px;
+    background: #f5f5f5;
+    color: #232629;
+    border: 1.5px solid #47476bff;
+}
+QWidget#CustomTitleBar QLabel#icon_label {
+    margin-right: 8px;
+}
+QWidget#CustomTitleBar QLabel {
+    color: #232629;
+    font-size: 13pt;
+    font-weight: 600;
+    font-family: 'Serena', 'Century Gothic', Arial, 'Liberation Sans', sans-serif, 'Segoe UI Variable';
+}
+QPushButton#close_btn, QPushButton#min_btn, QPushButton#max_btn {
+    font-size: 12pt;
+    padding: 0px 12px;
+}
+QPushButton#min_btn:hover, QPushButton#max_btn:hover {
+    background: #8cd5ff;
+    color: #fff;
+}
+QPushButton#close_btn:hover {
+    background: #ff0000;
+    color: #fff;
+}
+QWidget#ImageArea {
+    background-color: #f5f5f5;
+    border: none;
+    border-radius:15px;
+}
+QScrollArea#leftScroll, QWidget#leftPanel, QWidget#rightPanel, QVBoxLayout#rightLayout, QLabel#image_label {
+    background-color: #f5f5f5;
+    border: none;
+    border-radius:15px;
+}

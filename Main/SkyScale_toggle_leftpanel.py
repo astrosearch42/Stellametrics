@@ -132,29 +132,7 @@ class ImageViewer(QtWidgets.QWidget):
         uic.loadUi(resource_path(os.path.join("Main", "ImageViewer.ui")), self)
         self.setWindowTitle("SkyScale")
 
-        # Def la taille de départ du splitter      
-        main_splitter = self.findChild(QtWidgets.QSplitter, "mainSplitter")
-        if main_splitter:
-            main_splitter.setSizes([800, 1000])  
-
-        # Récupère la barre de titre et connecte le bouton toggle
-        self.title_bar = self.findChild(QtWidgets.QWidget, "CustomTitleBar")
-        
-        # Connexion des boutons aux méthodes
-        self.open_btn.clicked.connect(self.open_image)
-        self.segment_btn.clicked.connect(self.toggle_segment_mode)
-        self.save_btn.clicked.connect(self.save_preset)
-        self.load_btn.clicked.connect(self.load_preset)
-        self.calc_btn.clicked.connect(self.calculer_longueur_reelle)
-        self.add_object_btn.clicked.connect(self.add_object_to_scene)
-        self.clear_objects_btn.clicked.connect(self.clear_all_objects)
-        self.save_object_btn.clicked.connect(self.save_image_with_object)
-        self.add_distance_btn.clicked.connect(self.add_distance_to_library)
-        self.remove_distance_btn.clicked.connect(self.remove_distance_from_library)
-        self.distance_combo.currentIndexChanged.connect(self.select_distance_from_library)
-        self.skyfield_fill_btn.clicked.connect(self.fill_distance_with_skyfield)
-
-        # Initialisation des variables nécessaires
+        # Initialisation des variables d'instance
         self.segment_mode = False
         self.segment_points = []
         self.segment_line = None
@@ -171,10 +149,41 @@ class ImageViewer(QtWidgets.QWidget):
             "Earth": {"image": resource_path(os.path.join("objects_png", "earth.png")), "diameter": 12742, "min_km": 100, "max_km": 2e6},
             "Jupiter": {"image": resource_path(os.path.join("objects_png", "jupiter.png")), "diameter": 139822, "min_km": 1000, "max_km": 1e8},
         }
-
-        # Variables pour stocker le dernier chemin d'image et de preset utilisés
+        self.last_image_path = ""
+        self.last_preset_path = ""
         self.last_image_path = self.load_last_image_path()
         self.last_preset_path = self.load_last_preset_path()
+
+        # Def la taille de départ du splitter      
+        main_splitter = self.findChild(QtWidgets.QSplitter, "mainSplitter")
+        if main_splitter:
+            main_splitter.setSizes([800, 1000])  
+
+        # Récupère la barre de titre et connecte le bouton toggle
+        self.title_bar = self.findChild(QtWidgets.QWidget, "CustomTitleBar")
+
+        # Connexion des boutons aux méthodes
+        self.open_btn.clicked.connect(self.open_image)
+        self.segment_btn.clicked.connect(self.toggle_segment_mode)
+        self.save_btn.clicked.connect(self.save_preset)
+        self.load_btn.clicked.connect(self.load_preset)
+        self.calc_btn.clicked.connect(self.calculer_longueur_reelle)
+        self.add_object_btn.clicked.connect(self.add_object_to_scene)
+        self.clear_objects_btn.clicked.connect(self.clear_all_objects)
+        self.save_object_btn.clicked.connect(self.save_image_with_object)
+        self.add_distance_btn.clicked.connect(self.add_distance_to_library)
+        self.remove_distance_btn.clicked.connect(self.remove_distance_from_library)
+        self.distance_combo.currentIndexChanged.connect(self.select_distance_from_library)
+        self.skyfield_fill_btn.clicked.connect(self.fill_distance_with_skyfield)
+        # Connexion du bouton toggleLeftPanelButton à la méthode de toggle
+        self.toggleLeftPanelButton.clicked.connect(self.toggle_left_panel)
+    def toggle_left_panel(self):
+        """
+        Affiche ou masque le panneau gauche (leftScroll) quand on appuie sur le bouton toggleLeftPanelButton.
+        """
+        left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
+        if left_scroll:
+            left_scroll.setVisible(not left_scroll.isVisible())
 
         # Ajout de marge dans le leftPanel
         left_Layout = self.findChild(QtWidgets.QWidget, "leftLayout")
@@ -223,40 +232,6 @@ class ImageViewer(QtWidgets.QWidget):
                 if layout:
                     l, t, r, b = layout.contentsMargins().left(), layout.contentsMargins().top(), layout.contentsMargins().right(), layout.contentsMargins().bottom()
                     layout.setContentsMargins(l, 2, r, b)
-        # Ajout du widget pyqtgraph dans le panneau de droite
-        self.graphics_widget = pg.GraphicsLayoutWidget()
-        self.graphics_widget.setObjectName("ImageArea")
-        self.update_graphics_background()  # Met à jour le fond dès le départ
-        self.img_view = self.graphics_widget.addViewBox()
-        self.img_item = pg.ImageItem()
-        self.img_view.addItem(self.img_item)
-        self.img_view.setAspectLocked(True)
-        # Synchronise la couleur de fond de la zone image avec le background du widget
-        bg_color = self.graphics_widget.palette().color(QtGui.QPalette.Window)
-        self.img_view.setBackgroundColor(bg_color)
-        self.graphics_widget.setBackground(bg_color)
-        self.img_view.scene().sigMouseMoved.connect(self.update_mouse_coords)
-        self.img_view.scene().installEventFilter(self)
-        # Récupère le widget rightPanel et son layout
-        right_panel = self.findChild(QtWidgets.QWidget, "rightPanel")
-        right_layout = right_panel.layout() if right_panel is not None else None
-        # Supprime le QLabel d'image si présent
-        image_label = self.findChild(QtWidgets.QLabel, "image_label")
-        if image_label is not None and right_layout is not None:
-            right_layout.removeWidget(image_label)
-            image_label.setParent(None)
-        if right_layout is not None:
-            right_layout.addWidget(self.graphics_widget)
-        # Ajoute le label de coordonnées
-        self.coord_label = QtWidgets.QLabel("X: -, Y: -", self.graphics_widget)
-        self.coord_label.setStyleSheet("background: #222; color: #fff; padding: 4px; border-radius: 6px;")
-        self.coord_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.coord_label.setFixedWidth(150)
-        self.coord_label.setFixedHeight(28)
-        self.coord_label.move(20, 20)
-        self.coord_label.raise_()
-        self.graphics_widget.setMouseTracking(True)
-        self.graphics_widget.installEventFilter(self)
 
         # Barlow/reducer UI
         def on_barlow_checked(state):
@@ -434,14 +409,12 @@ class ImageViewer(QtWidgets.QWidget):
             "camera_pixel_size": self.camera_pixel_size.text(),
         }
         # Demande à l'utilisateur où enregistrer le preset
-        preset_name = self.telescope_name.text().strip() or "default"
-        default_filename = f"preset_{preset_name}.json"
-        default_dir = os.path.dirname(self.last_preset_path) if self.last_preset_path else os.path.abspath(".")
-        default_path = os.path.join(default_dir, default_filename)
+        default_name = self.telescope_name.text().strip() or "default"
+        default_path = os.path.join(os.path.abspath("."), f"preset_{default_name}.json")
         path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             "Save preset",
-            default_path,
+            self.last_preset_path or default_path,
             "Presets JSON (*.json);;All files (*)"
         )
         if not path:
@@ -1001,28 +974,22 @@ class ImageViewer(QtWidgets.QWidget):
                     return f.read().strip()
         except Exception as e:
             raise Exception(f"Error while loading image path: {e}")
-        return ""
-
-    def save_last_preset_path(self, path):
-        try:
-            with open(self.LAST_PRESET_PATH_FILE, "w", encoding="utf-8") as f:
-                f.write(path)
-        except Exception as e:
-            raise Exception(f"Error while saving preset path: {e}")
-
-    def load_last_preset_path(self):
-        try:
-            if os.path.exists(self.LAST_PRESET_PATH_FILE):
-                with open(self.LAST_PRESET_PATH_FILE, "r", encoding="utf-8") as f:
-                    return f.read().strip()
-        except Exception as e:
-            raise Exception(f"Error while loading preset path: {e}")
-        return ""
-
-    def add_author_bar(self):
-        # Ajoute une barre discrète en bas à gauche du panel droit
-        right_panel = self.findChild(QtWidgets.QWidget, "rightPanel")
-        if right_panel is not None:
+        """
+        Affiche ou masque le panneau gauche (leftScroll) quand on appuie sur le bouton toggleLeftPanelButton.
+        """
+        left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
+        if left_scroll:
+            left_scroll.setVisible(not left_scroll.isVisible())
+            # Réactualise les effets visuels des boutons après le toggle
+            self.apply_button_effects()
+            # Force le layout parent à se mettre à jour
+            parent = left_scroll.parent()
+            if parent:
+                parent.update()
+                parent.repaint()
+            left_scroll.update()
+            left_scroll.repaint()
+            right_panel = self.findChild(QtWidgets.QWidget, "rightPanel")
             self.author_bar = QtWidgets.QLabel("Author : AstroSearch42", right_panel)
             self.author_bar.setStyleSheet("background: rgba(30,30,30,0.85); color: #F0EBE3; padding: 4px 12px; border-radius: 8px; font-size: 9pt; font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;")
             self.author_bar.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
@@ -1031,7 +998,8 @@ class ImageViewer(QtWidgets.QWidget):
             self.author_bar.raise_()
             self.position_author_bar()
             # Redéfinir resizeEvent du panel droit
-            right_panel.resizeEvent = self.wrap_right_panel_resize_event(right_panel.resizeEvent)
+            if right_panel:
+                right_panel.resizeEvent = self.wrap_right_panel_resize_event(right_panel.resizeEvent)
 
     def position_author_bar(self):
         # Place la barre en bas à gauche du panel droit
@@ -1060,16 +1028,16 @@ class ImageViewer(QtWidgets.QWidget):
 
 class FramelessImageViewer(ImageViewer):
     def __init__(self, icon_path=None, theme_names=None, current_theme=None):
+        # Appel du constructeur parent en tout premier
         super().__init__()
-        # Ensure last_preset_path is initialized
-        if not hasattr(self, 'last_preset_path') or self.last_preset_path is None:
-            self.last_preset_path = self.load_last_preset_path()
+        # Initialisation spécifique à FramelessImageViewer
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Window)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.setObjectName("FramelessImageViewer")
         self._drag_pos = None
         self._resizing = False
         self._resize_margin = 8
+    
         # Couleur et épaisseur du bord externe
         self._border_color = QtGui.QColor("#18195c")
         self._border_width = 4  # Épaisseur du bord
