@@ -733,6 +733,22 @@
      </widget>
     </widget>
    </item>
+   <item>
+    <widget class="QLabel" name="author_label">
+     <property name="text">
+      <string>Author : AstroSearch42</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="minimumHeight">
+      <number>20</number>
+     </property>
+     <property name="maximumHeight">
+      <number>24</number>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

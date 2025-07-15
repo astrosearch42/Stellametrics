@@ -1,6 +1,22 @@
 [
-  {"name": "M42 (Orion Nebula)", "value": 1344, "unit": "ly"},
-  {"name": "Andromeda Galaxy", "value": 778000, "unit": "pc"},
-  {"name": "M82 (Cigar Galaxy)", "value": 36000000, "unit": "ly"},
-  {"name": "M75 (Globular Cluster)", "value": 67000, "unit": "ly"}
+  {
+    "name": "M42 (Orion Nebula)",
+    "value": 1344,
+    "unit": "ly"
+  },
+  {
+    "name": "Andromeda Galaxy",
+    "value": 778000,
+    "unit": "pc"
+  },
+  {
+    "name": "M82 (Cigar Galaxy)",
+    "value": 36000000,
+    "unit": "ly"
+  },
+  {
+    "name": "M75 (Globular Cluster)",
+    "value": 67000,
+    "unit": "ly"
+  }
 ]
