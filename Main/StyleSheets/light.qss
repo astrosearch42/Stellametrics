@@ -197,6 +197,20 @@ QWidget#FramelessImageViewer {
     border: 1.5px solid #353b3c;
     background-color: transparent;
 }
+
+QPushButton#open_btn, QPushButton#remove_image_btn {
+    min-width: 160px;
+    min-height: 35px;
+    font-size: 11pt;
+    font-weight: 600;
+}
+QPushButton#toggleLeftPanelButton {
+    min-width: 50px;
+    min-height: 35px;
+    font-size: 11pt;
+    font-weight: 600;
+}
+
 QWidget#CustomTitleBar {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #F8FFF1, stop:1 #AB8476); /**/
     border-radius: 7px;
@@ -249,7 +263,7 @@ QPushButton#min_btn:hover, QPushButton#max_btn:hover {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #b39cac, stop:1 #80647b);
     color: #fff;
 }
-QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover {
+QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover, QPushButton#remove_image_btn:hover  {
     background: #ff0000;
     color: #fff;
 }

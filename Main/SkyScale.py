@@ -193,13 +193,14 @@ class ImageViewer(QtWidgets.QWidget):
         # Def la taille de départ du splitter      
         main_splitter = self.findChild(QtWidgets.QSplitter, "mainSplitter")
         if main_splitter:
-            main_splitter.setSizes([800, 1000])  
+            main_splitter.setSizes([500, 1000])  
 
         # Récupère la barre de titre et connecte le bouton toggle
         self.title_bar = self.findChild(QtWidgets.QWidget, "CustomTitleBar")
 
         # Connexion des boutons aux méthodes
         self.open_btn.clicked.connect(self.open_image)
+        self.remove_image_btn.clicked.connect(self.remove_imgage)
         self.segment_btn.clicked.connect(self.toggle_segment_mode)
         self.save_btn.clicked.connect(self.save_preset)
         self.load_btn.clicked.connect(self.load_preset)
@@ -246,14 +247,14 @@ class ImageViewer(QtWidgets.QWidget):
             layout.setSpacing(12)  # Espacement entre widgets
         # Ajout d'un spacing haut et bas dans le leftPanel
         save_object_btn = self.findChild(QtWidgets.QPushButton, "save_object_btn")
-        open_btn = self.findChild(QtWidgets.QPushButton, "open_btn")
-        if save_object_btn and open_btn:
-            open_btn.setStyleSheet("margin-top: 8px; margin-left: 6px; margin-right: 6px;")
+        segment_btn = self.findChild(QtWidgets.QPushButton, "segment_btn")
+        if save_object_btn and segment_btn:
+            segment_btn.setStyleSheet("margin-top: 8px; margin-left: 6px; margin-right: 6px;")
             save_object_btn.setStyleSheet("margin-bottom: 8px; margin-left: 6px; margin-right: 6px;")
         # Ajout d'un spacing droite et gauche à tous les élements du leftPanel
         for element in self.findChildren((QtWidgets.QPushButton, QtWidgets.QLabel, QtWidgets.QGroupBox, QtWidgets.QComboBox, QtWidgets.QLineEdit, QtWidgets.QDateEdit)):
             # N'applique pas la marge aux boutons save_object_btn et open_btn
-            if element is save_object_btn or element is open_btn:
+            if element is save_object_btn or element is segment_btn:
                 continue
             if isinstance(element, QtWidgets.QPushButton):
                 element.setStyleSheet("margin-left: 6px; margin-right: 6px;")
@@ -360,6 +361,8 @@ class ImageViewer(QtWidgets.QWidget):
             else:
                 btn.pressed.connect(lambda b=btn: set_shadow_color(b, pressed_color))
                 btn.released.connect(lambda b=btn: set_shadow_color(b, normal_color))
+        
+        
         # btn = self.findChild(QtWidgets.QPushButton, "open_btn")
         # if btn:
         #     shadow = QGraphicsDropShadowEffect()
@@ -627,6 +630,14 @@ class ImageViewer(QtWidgets.QWidget):
         # Enregistre le chemin dans fichier
         self.last_image_path = path
         self.save_last_image_path(path)
+
+    def remove_imgage(self):
+        self.original_img = None
+        self.current_img = None
+        self.img_item.clear()
+        self.img_view.autoRange()
+        self.last_image_path = ""
+        self.save_last_image_path(self.last_image_path)
 
     def load_last_image(self):
         if self.last_image_path and os.path.exists(self.last_image_path):
@@ -1070,8 +1081,13 @@ class FramelessImageViewer(ImageViewer):
         self._resize_margin = 8
     
         # Couleur et épaisseur du bord externe
-        self._border_color = QtGui.QColor("#18195c")
-        self._border_width = 4  # Épaisseur du bord
+        # Couleurs de bordure selon le thème
+        self._border_colors = {
+            "dark": QtGui.QColor("#18195c"),
+            "light": QtGui.QColor("#3D314A")
+        }
+        self._border_color = self._border_colors.get(current_theme.lower() if current_theme else "light", QtGui.QColor("#18195c"))
+        self._border_width = 8  # Épaisseur du bord
         self._border_style = QtCore.Qt.SolidLine  # Style du bord (SolidLine, DashLine, etc.)
         self._corner_radius = 20  # Rayon des coins arrondis
         self._window_shape = 'rounded'  # 'rectangle', 'rounded', 'circle'
@@ -1084,7 +1100,7 @@ class FramelessImageViewer(ImageViewer):
             # Icone et titre
             icon_label = self.title_bar.findChild(QtWidgets.QLabel, "icon_label")
             if icon_label and icon_path:
-                icon_label.setPixmap(QtGui.QPixmap(icon_path).scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                icon_label.setPixmap(QtGui.QPixmap(icon_path).scaled(48, 48, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
             title_label = self.title_bar.findChild(QtWidgets.QLabel, "title_label")
             if title_label:
                 title_label.setText("SkyScale")
@@ -1105,6 +1121,8 @@ class FramelessImageViewer(ImageViewer):
                         if os.path.exists(qss_path):
                             with open(qss_path, "r", encoding="utf-8") as f:
                                 app.setStyleSheet(f.read())
+                    # Met à jour la couleur de bordure selon le thème
+                    self._border_color = self._border_colors.get(theme_name.lower(), QtGui.QColor("#18195c"))
                     self.current_theme = theme_name.lower()
                     self.apply_button_effects()
                     self.update_graphics_background()
@@ -1325,7 +1343,7 @@ if __name__ == "__main__":
         # serena_family = list(load_fonts("Serena").keys())[0] # charge une police précise
 
 
-        icon_path = resource_path(os.path.join("objects_png", "Icon", "icon2.ico"))
+        icon_path = resource_path(os.path.join("objects_png", "Icon", "icon2.png"))
         app.setWindowIcon(QtGui.QIcon(icon_path))
 
         # --- Chargement des stylesheets ---
@@ -1354,7 +1372,7 @@ if __name__ == "__main__":
             win.title_bar.theme_changed.connect(on_theme_changed)
         win.setWindowIcon(QtGui.QIcon(icon_path))
         win.setWindowTitle("SkyScale  - FITS/Image Viewer")
-        win.apply_button_effects()   # Ajout : applique la couleur du shadow dès l'ouverture
+        win.apply_button_effects()
         win.show()
         sys.exit(app.exec_())
     except Exception:

@@ -241,6 +241,20 @@ QWidget#CustomTitleBar QLabel {
     font-weight: 600;
     font-family: 'Serena', 'Century Gothic', Arial, 'Liberation Sans', sans-serif, 'Segoe UI Variable';
 }
+
+QPushButton#open_btn, QPushButton#remove_image_btn {
+    min-width: 160px;
+    min-height: 35px;
+    font-size: 11pt;
+    font-weight: 600;
+}
+QPushButton#toggleLeftPanelButton {
+    min-width: 50px;
+    min-height: 35px;
+    font-size: 11pt;
+    font-weight: 600;
+}
+
 QPushButton#close_btn, QPushButton#min_btn, QPushButton#max_btn {
     font-size: 12pt;
     padding: 0px 12px;
@@ -249,7 +263,7 @@ QPushButton#min_btn:hover, QPushButton#max_btn:hover {
     background: #3e4446;
     color: #fff;
 }
-QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover {
+QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover, QPushButton#remove_image_btn:hover {
     background: #ff0000;
     color: #fff;
 }
@@ -271,6 +285,7 @@ QWidget#leftPanel{
         stop:1 #3e4446
     );
 }
+
 QLabel#author_label {
     background: #232629; 
     color: #F0EBE3; 
