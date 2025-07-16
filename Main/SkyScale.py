@@ -457,7 +457,7 @@ class ImageViewer(QtWidgets.QWidget):
         }
         # Récupère le nom du télescope juste avant l'enregistrement
         default_name = self.telescope_name.text().strip() or "default"
-        default_path = os.path.join(os.path.abspath("."), f"preset_{default_name}.json")
+        default_path = resource_path(os.path.join("preset", f"preset_{default_name}.json"))
         # Propose le nom du télescope dans le nom de fichier
         path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
@@ -1100,7 +1100,7 @@ class FramelessImageViewer(ImageViewer):
             # Icone et titre
             icon_label = self.title_bar.findChild(QtWidgets.QLabel, "icon_label")
             if icon_label and icon_path:
-                icon_label.setPixmap(QtGui.QPixmap(icon_path).scaled(48, 48, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                icon_label.setPixmap(QtGui.QPixmap(resource_path(icon_path)).scaled(48, 48, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
             title_label = self.title_bar.findChild(QtWidgets.QLabel, "title_label")
             if title_label:
                 title_label.setText("SkyScale")
@@ -1115,9 +1115,7 @@ class FramelessImageViewer(ImageViewer):
                 def on_theme_changed(theme_name): 
                     app = QApplication.instance()
                     if app:
-                        from os.path import dirname, join
-                        styles_dir = join(dirname(__file__), "StyleSheets")
-                        qss_path = join(styles_dir, f"{theme_name.lower()}.qss")
+                        qss_path = resource_path(os.path.join("Main", "StyleSheets", f"{theme_name.lower()}.qss"))
                         if os.path.exists(qss_path):
                             with open(qss_path, "r", encoding="utf-8") as f:
                                 app.setStyleSheet(f.read())
@@ -1343,7 +1341,7 @@ if __name__ == "__main__":
         # serena_family = list(load_fonts("Serena").keys())[0] # charge une police précise
 
 
-        icon_path = resource_path(os.path.join("objects_png", "Icon", "icon2.png"))
+        icon_path = resource_path(os.path.join("objects_png", "Icon", "icon.png"))
         app.setWindowIcon(QtGui.QIcon(icon_path))
 
         # --- Chargement des stylesheets ---
