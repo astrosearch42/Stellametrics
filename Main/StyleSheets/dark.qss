@@ -5,7 +5,6 @@ QWidget {
     color: #F0EBE3;
     font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;
 }
-
 QPushButton {
     border: none;
     border-radius: 10px;
@@ -20,7 +19,6 @@ QPushButton {
 QPushButton:hover, QPushButton:pressed, QPushButton#segment_btn:checked {
     background: #3e4446;
 }
-
 QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QDialog, QMessageBox, QFileDialog, QInputDialog QSpinBox, QInputDialog QDoubleSpinBox {
     background: #2b2f31;
     border: 1.5px solid #444;
@@ -37,8 +35,6 @@ QInputDialog QSpinBox:focus, QInputDialog QDoubleSpinBox:focus {
     font-size: 8.2pt;
     padding: 6px;
 }
-
-
 QComboBox{
     background: #2b2f31;
     border: 1.5px solid #444;
@@ -48,6 +44,7 @@ QComboBox{
     font-size: 8.7pt;
     padding: 6px;
 }
+/*
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -57,23 +54,12 @@ QComboBox::drop-down {
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
 }
-
 QComboBox::down-arrow {
     image: url("objects_png/Icon/arrow_down.png");
     width: 26px;
     height: 26px;
 }
-
-QComboBox#distance_unit{
-    background: #2b2f31;
-    border: 1.5px solid #444;
-    border-radius: 8px;
-    color: #F0EBE3;
-    min-height: 27px;
-    min-width: 70px;
-    font-size: 8.7pt;
-    padding: 6px;
-}
+*/
 QTextEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
     border: 2px solid #7700ff;
     background: #353b3c;
@@ -100,7 +86,6 @@ QGroupBox {
     padding-top: 10px;
     font-size: 8.2pt;
 }
-
 /* Titres des GroupBox */
 QLabel#telescope_caract_title,
 QLabel#barlow_reducer_title,
@@ -126,7 +111,6 @@ QLabel#length_label {
 QLabel#real_length_label {
     margin-bottom: 12px;
 }
-
 QCheckBox, QRadioButton {
     padding: 3px;
     color: #F0EBE3;
@@ -143,7 +127,6 @@ QCheckBox::indicator:checked, QRadioButton::indicator:checked {
     background: #7700ff;
     border: 1.5px solid #7700ff;
 }
-
 QComboBox QAbstractItemView {
     background: #232629;
     border: 1.5px solid #444;
@@ -151,7 +134,6 @@ QComboBox QAbstractItemView {
     border-radius: 8px;
     color: #F0EBE3;
 }
-
 QTabWidget::pane {
     border: 1.5px solid #444;
     border-radius: 12px;
@@ -171,20 +153,13 @@ QTabBar::tab:selected {
     color: #7700ff;
     font-weight: 600;
 }
-
 /* Exceptions et cas particuliers */
-QComboBox#distance_unit {
-    max-width: 40px;
-}
-QComboBox#distance_combo {
-    max-width: 130px;
-}
 QDateEdit {
     background: #2b2f31;
     border: 1.5px solid #444;
     border-radius: 8px;
     color: #F0EBE3;
-    font-size: 8.2pt;
+    font-size: 9pt;
     min-height: 40px;
     max-width: 120px;
 }
@@ -196,7 +171,7 @@ QWidget#mainLayout {
 QWidget#FramelessImageViewer {
     border-radius: 14px;
     border: 1.5px solid #353b3c;
-    background-color: #232629;
+    background-color: transparent;
 }
 QWidget#CustomTitleBar {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #232629, stop:1 #181a1b); /**/
@@ -241,7 +216,6 @@ QWidget#CustomTitleBar QLabel {
     font-weight: 600;
     font-family: 'Serena', 'Century Gothic', Arial, 'Liberation Sans', sans-serif, 'Segoe UI Variable';
 }
-
 QPushButton#open_btn, QPushButton#remove_image_btn {
     min-width: 160px;
     min-height: 35px;
@@ -254,7 +228,6 @@ QPushButton#toggleLeftPanelButton {
     font-size: 11pt;
     font-weight: 600;
 }
-
 QPushButton#close_btn, QPushButton#min_btn, QPushButton#max_btn {
     font-size: 12pt;
     padding: 0px 12px;
@@ -285,7 +258,6 @@ QWidget#leftPanel{
         stop:1 #3e4446
     );
 }
-
 QLabel#author_label {
     background: #232629; 
     color: #F0EBE3; 
@@ -294,15 +266,14 @@ QLabel#author_label {
     font-size: 12pt; 
     font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;
 }
-
 /* ScrollBar Style */
-QScrollBar:vertical {
+QScrollBar:vertical, QScrollBar:horizontale {
     background: #232629;
     width: 16px;
     margin: 2px 0 2px 0;
     border-radius: 4px;
 }
-QScrollBar::handle:vertical {
+QScrollBar::handle:vertical, QScrollBar::handle:horizontale {
     background: qlineargradient(
         x1:0, y1:0, x2:0, y2:1,
         stop:0 #3e4446,
@@ -312,12 +283,27 @@ QScrollBar::handle:vertical {
     min-height: 24px;
     border-radius: 4px;
 }
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical, QScrollBar::add-line:horizontale, QScrollBar::sub-line:horizontale {
     background: #353b3c;
     height: 0px;
     border: none;
 }
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical, QScrollBar::add-page:horizontale, QScrollBar::sub-page:horizontale {
     background: none;
 }
-   
+/* distance_group */
+QLineEdit#object_distance {
+    min-width: 115px;
+    min-height: 38px;
+    max-height: 38px;
+}
+QComboBox#distance_unit {
+    max-width: 70px;
+    min-height: 27px;
+    max-height: 27px;
+}
+QComboBox#distance_combo {
+    max-width: 130px;
+    min-height: 27px;
+    max-height: 27px;
+}

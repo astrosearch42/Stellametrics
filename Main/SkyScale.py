@@ -60,17 +60,12 @@ class CustomTitleBar(QtWidgets.QWidget):
             self.theme_combo.addItems(theme_names)
             if current_theme and current_theme in theme_names:
                 self.theme_combo.setCurrentText(current_theme)
-            self.theme_combo.setFixedWidth(140)
+            self.theme_combo.setFixedWidth(340)
             self.theme_combo.setToolTip("Changer le thème de l'application")
             self.theme_combo.currentTextChanged.connect(self.on_theme_changed)
             layout.addWidget(self.theme_combo)
         layout.addStretch(5)
-        # Bouton pour afficher/masquer le panneau de gauche
-        self.toggle_left_panel_btn = QtWidgets.QPushButton("⯈")
-        self.toggle_left_panel_btn.setObjectName("toggleLeftPanelButton")
-        self.toggle_left_panel_btn.setFixedSize(28, 28)
-        self.toggle_left_panel_btn.setToolTip("Afficher/Masquer le panneau de gauche")
-        layout.addWidget(self.toggle_left_panel_btn)
+        # Bouton toggleLeftPanelButton chargé par l'UI, ne pas créer ici
         # Minimize
         self.min_btn = QtWidgets.QPushButton("–")
         self.min_btn.setObjectName("minimizeButton")
@@ -197,6 +192,14 @@ class ImageViewer(QtWidgets.QWidget):
 
         # Récupère la barre de titre et connecte le bouton toggle
         self.title_bar = self.findChild(QtWidgets.QWidget, "CustomTitleBar")
+        # Récupère le bouton toggleLeftPanelButton depuis l'UI
+        self.toggleLeftPanelButton = self.findChild(QtWidgets.QPushButton, "toggleLeftPanelButton")
+        # Masque le panneau de gauche au démarrage
+        left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
+        if left_scroll:
+            left_scroll.setVisible(False)
+            if self.toggleLeftPanelButton:
+                self.toggleLeftPanelButton.setText("⯈")
 
         # Connexion des boutons aux méthodes
         self.open_btn.clicked.connect(self.open_image)
@@ -232,9 +235,30 @@ class ImageViewer(QtWidgets.QWidget):
             left_scroll.setVisible(not left_scroll.isVisible())
             # Change le texte du bouton selon l'état
             if left_scroll.isVisible():
-                self.toggleLeftPanelButton.setText("⯇")
+                self.toggleLeftPanelButton.setText("☰") #⯇
             else:
-                self.toggleLeftPanelButton.setText("⯈")
+                self.toggleLeftPanelButton.setText("☰") #⯈
+
+            # Réapplique les tailles min/max des widgets du layout
+            object_distance = self.findChild(QtWidgets.QLineEdit, "object_distance")
+            distance_unit = self.findChild(QtWidgets.QComboBox, "distance_unit")
+            distance_combo = self.findChild(QtWidgets.QComboBox, "distance_combo")
+            if object_distance:
+                object_distance.setMinimumWidth(115)
+                object_distance.setMaximumWidth(115)
+                object_distance.setMinimumHeight(38)
+                object_distance.setMaximumHeight(38)
+            if distance_unit:
+                distance_unit.setMinimumWidth(70)
+                distance_unit.setMaximumWidth(70)
+                distance_unit.setMinimumHeight(27)
+                distance_unit.setMaximumHeight(27)
+            if distance_combo:
+                distance_combo.setMinimumWidth(130)
+                distance_combo.setMaximumWidth(130)
+                distance_combo.setMinimumHeight(27)
+                distance_combo.setMaximumHeight(27)
+            
 
         # Ajout de marge dans le leftPanel
         left_Layout = self.findChild(QtWidgets.QWidget, "leftLayout")
@@ -627,6 +651,12 @@ class ImageViewer(QtWidgets.QWidget):
         self.img_item.setImage(self.current_img, autoLevels=True)
         self.img_view.setAspectLocked(True)
         self.img_view.autoRange()
+        # Ouvre le panneau gauche si une image est chargée
+        left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
+        if left_scroll:
+            left_scroll.setVisible(True)
+            if self.toggleLeftPanelButton:
+                self.toggleLeftPanelButton.setText("☰")
         # Enregistre le chemin dans fichier
         self.last_image_path = path
         self.save_last_image_path(path)
@@ -695,6 +725,12 @@ class ImageViewer(QtWidgets.QWidget):
         self.img_item.setImage(self.current_img, autoLevels=True)
         self.img_view.setAspectLocked(True)  # Permet l'affichage sans forcer le carré
         self.img_view.autoRange()
+        # Ouvre le panneau gauche si une image est chargée
+        left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
+        if left_scroll:
+            left_scroll.setVisible(True)
+            if self.toggleLeftPanelButton:
+                self.toggleLeftPanelButton.setText("⯇")
 
     def toggle_segment_mode(self):
         self.segment_mode = self.segment_btn.isChecked()
