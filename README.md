@@ -23,6 +23,12 @@ To use a custom icon:
    - Alternatively, use any online converter (e.g. https://cloudconvert.com/svg-to-ico) and place the resulting `icon.ico` in `objects_png/Icon/`.
 
 ## Installation
+**Linux prerequisites:**
+If you are on Linux, you may need to install some system packages first:
+```bash
+sudo apt install python3.11-venv git binutils
+```
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/astrosearch42/SkyScale
@@ -64,8 +70,13 @@ To use a custom icon:
    ```
    - On Windows, use `;` as the separator in `--add-data`. On macOS/Linux, use `:` instead.
    - If you encounter issues with the multi-line command, use a single line (see PyInstaller docs) or run this line :
+   1. Windows:
    ```powershell
    pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.ico" --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Main/StyleSheets;Main/StyleSheets" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "Library/fonts;Library/fonts" --add-data "Preset;Preset" Main/SkyScale.py
+   ```
+   2. macOS/Linux:
+   ```powershell
+   pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.ico" --add-data "objects_png:objects_png" --add-data "Main/ImageViewer.ui:Main" --add-data "Main/StyleSheets:Main/StyleSheets" --add-data "Library/distance_library.json:Library" --add-data "Library/de421.bsp:Library" --add-data "Library/fonts:Library/fonts" --add-data "Preset:Preset" Main/SkyScale.py
    ```
 
 3. The executable will be created in the `dist` folder as `SkyScale.exe`.
