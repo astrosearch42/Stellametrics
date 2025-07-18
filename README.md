@@ -1,3 +1,6 @@
+
+
+
 # SkyScale
 
 SkyScale is a cross-platform PyQt5 application for visualizing, measuring, and comparing astronomical images (FITS, PNG, JPG, etc.). It allows you to measure distances, overlay reference objects, and manage instrument presets.
@@ -23,6 +26,21 @@ To use a custom icon:
    - Alternatively, use any online converter (e.g. https://cloudconvert.com/svg-to-ico) and place the resulting `icon.ico` in `objects_png/Icon/`.
 
 ## Installation
+
+### Quick & Easy Installation with the Executable
+
+The fastest and easiest way to use SkyScale is to download the pre-built executable:
+
+1. Download the file `SkyScale.exe`.
+2. Place `SkyScale.exe` wherever you want (Desktop, Documents, external drive, etc.).
+3. Double-click `SkyScale.exe` to launch the application. No need to install Python or any dependencies.
+4. (Optional) Create a shortcut for quick access: right-click on `SkyScale.exe` → "Create shortcut" → move the shortcut to your Desktop.
+
+**This method is highly recommended for users who want a fast and hassle-free setup.**
+
+---
+
+For advanced users or those on Linux/macOS, you can install from source as described below.
 **Linux prerequisites:**
 If you are on Linux, you may need to install some system packages first:
 ```bash
