@@ -1,20 +1,26 @@
-import sys
 import os
+import sys
+import glob
+import json
+import traceback
 from pathlib import Path
+
 import numpy as np
-from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import pyqtgraph as pg
 from astropy.io import fits
 from PIL import Image, ImageOps
-import json
-from PyQt5.QtGui import QPen, QPixmap, QFontDatabase
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QGraphicsLineItem, QGraphicsPixmapItem, QGraphicsDropShadowEffect, QApplication
+from PyQt5.QtGui import QFontDatabase, QPen, QPixmap
+from PyQt5.QtWidgets import (
+    QApplication,
+    QGraphicsDropShadowEffect,
+    QGraphicsLineItem,
+    QGraphicsPixmapItem
+)
 from skyfield.api import load
-import glob
-import traceback
 
-# Définit le dossier racine du projet (le dossier qui contient 'Main', 'Library', etc.)
+# Root directory (the folder containing 'Main', 'Library', etc.)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def resource_path(relative_path):
@@ -41,7 +47,7 @@ class CustomTitleBar(QtWidgets.QWidget):
         self.parent = parent
         self.icon_path = icon_path
         self.title = title
-        # SUPPRESSION du setStyleSheet local pour laisser le style global agir
+
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(8, 0, 8, 0)
         layout.setSpacing(15)
@@ -53,7 +59,7 @@ class CustomTitleBar(QtWidgets.QWidget):
         # Title
         self.title_label = QtWidgets.QLabel(self.title)
         layout.addWidget(self.title_label)
-        # --- Ajout du sélecteur de thème ---
+        # Ajout du sélecteur de thème
         if theme_names:
             self.theme_combo = QtWidgets.QComboBox()
             self.theme_combo.setObjectName("theme_combo")
@@ -61,11 +67,11 @@ class CustomTitleBar(QtWidgets.QWidget):
             if current_theme and current_theme in theme_names:
                 self.theme_combo.setCurrentText(current_theme)
             self.theme_combo.setFixedWidth(340)
-            self.theme_combo.setToolTip("Changer le thème de l'application")
+            self.theme_combo.setToolTip("Change the application theme")
             self.theme_combo.currentTextChanged.connect(self.on_theme_changed)
             layout.addWidget(self.theme_combo)
         layout.addStretch(5)
-        # Bouton toggleLeftPanelButton chargé par l'UI, ne pas créer ici
+
         # Minimize
         self.min_btn = QtWidgets.QPushButton("–")
         self.min_btn.setObjectName("minimizeButton")
@@ -199,7 +205,7 @@ class ImageViewer(QtWidgets.QWidget):
         if left_scroll:
             left_scroll.setVisible(False)
             if self.toggleLeftPanelButton:
-                self.toggleLeftPanelButton.setText("⯈")
+                self.toggleLeftPanelButton.setText("☰")
 
         # Connexion des boutons aux méthodes
         self.open_btn.clicked.connect(self.open_image)
@@ -215,21 +221,17 @@ class ImageViewer(QtWidgets.QWidget):
         self.remove_distance_btn.clicked.connect(self.remove_distance_from_library)
         self.distance_combo.currentIndexChanged.connect(self.select_distance_from_library)
         self.skyfield_fill_btn.clicked.connect(self.fill_distance_with_skyfield)
-        # Connexion du bouton toggleLeftPanelButton à la méthode de toggle
         self.toggleLeftPanelButton.clicked.connect(self.toggle_left_panel)
 
         # Now load preset and image after all widgets are initialized
         self.load_last_preset()
         self.load_last_image()
-        # Force la couleur de fond de ImageArea selon le QSS dès l'ouverture
         self.update_graphics_background()
         # Bloque le changement de valeur des QComboBox avec la molette
         for combo in self.findChildren(QtWidgets.QComboBox):
             combo.wheelEvent = lambda event: None
+
     def toggle_left_panel(self):
-        """
-        Affiche ou masque le panneau gauche (leftScroll) quand on appuie sur le bouton toggleLeftPanelButton.
-        """
         left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
         if left_scroll:
             left_scroll.setVisible(not left_scroll.isVisible())
@@ -326,19 +328,17 @@ class ImageViewer(QtWidgets.QWidget):
             left_panel.setMinimumSize(0, 0)
             # Correction clé : forcer le leftPanel à suivre la largeur du scroll area
             left_panel.setSizePolicy(QtWidgets.QSizePolicy.Ignored, left_panel.sizePolicy().verticalPolicy())
-            # Astuce : QSizePolicy.Ignored force le widget à toujours prendre la largeur imposée par son parent (splitter/scroll area),
-            # ce qui garantit qu'il se compresse parfaitement sans scroll horizontal ni superposition, même réduit à l'extrême.
+            # Tip: QSizePolicy.Ignored forces the widget to always take the width imposed by its parent (splitter/scroll area),
+            # which ensures it compresses perfectly with no horizontal scroll or overlap, even when reduced to the minimum.
 
             layout = left_panel.layout()
             if layout:
                 layout.setContentsMargins(2, 2, 2, 2)
                 
-            # Appliquer Expanding à tous les enfants directs du leftPanel
             for child in left_panel.findChildren((QtWidgets.QPushButton, QtWidgets.QLabel, QtWidgets.QGroupBox, QtWidgets.QComboBox, QtWidgets.QLineEdit, QtWidgets.QDateEdit)):
                 child.setSizePolicy(QtWidgets.QSizePolicy.Expanding, child.sizePolicy().verticalPolicy())
                 child.setMinimumWidth(0)
                 child.setMaximumWidth(16777215)
-            # Si le parent direct est un QSplitter, le rendre collapsible
             splitter = left_panel.parent()
             if isinstance(splitter, QtWidgets.QSplitter):
                 index = splitter.indexOf(left_panel)
@@ -350,9 +350,6 @@ class ImageViewer(QtWidgets.QWidget):
 
         self.apply_button_effects()
     def apply_button_effects(self):
-        """
-        Applique les effets visuels sur tous les QPushButton de l'UI.
-        """
         def set_shadow_color(btn, color):
             effect = btn.graphicsEffect()
             if isinstance(effect, QGraphicsDropShadowEffect):
@@ -385,15 +382,6 @@ class ImageViewer(QtWidgets.QWidget):
             else:
                 btn.pressed.connect(lambda b=btn: set_shadow_color(b, pressed_color))
                 btn.released.connect(lambda b=btn: set_shadow_color(b, normal_color))
-        
-        
-        # btn = self.findChild(QtWidgets.QPushButton, "open_btn")
-        # if btn:
-        #     shadow = QGraphicsDropShadowEffect()
-        #     shadow.setBlurRadius(18)
-        #     shadow.setColor(QtGui.QColor(88, 64, 67, 160))
-        #     shadow.setOffset(0, 4)
-        #     btn.setGraphicsEffect(shadow)
 
 ##################################################################################################################
     def update_mouse_coords(self, pos):
@@ -482,7 +470,6 @@ class ImageViewer(QtWidgets.QWidget):
         # Récupère le nom du télescope juste avant l'enregistrement
         default_name = self.telescope_name.text().strip() or "default"
         default_path = resource_path(os.path.join("preset", f"preset_{default_name}.json"))
-        # Propose le nom du télescope dans le nom de fichier
         path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             "Save preset",
@@ -496,19 +483,16 @@ class ImageViewer(QtWidgets.QWidget):
                 json.dump(data, f)
         except Exception as e:
             raise Exception(f"Preset save error: {e}")
-        # Mémorise le chemin du dernier preset utilisé dans fichier
         self.last_preset_path = path
         self.save_last_preset_path(path)
 
     def get_preset_path(self):
-        # Retourne le chemin complet du preset courant dans le dossier 'preset' à la racine du projet
         name = self.telescope_name.text().strip() or "default"
         preset_dir = resource_path("Preset")
         os.makedirs(preset_dir, exist_ok=True)
         return os.path.join(preset_dir, f"preset_{name}.json")
 
     def load_last_preset_path(self):
-        # Lit le chemin du dernier preset utilisé depuis le fichier
         try:
             if os.path.exists(self.LAST_PRESET_PATH_FILE):
                 with open(self.LAST_PRESET_PATH_FILE, "r", encoding="utf-8") as f:
@@ -559,18 +543,15 @@ class ImageViewer(QtWidgets.QWidget):
             self.barlow_checkbox.setChecked(data.get("barlow_checked", False))
             self.barlow_value_edit.setText(data.get("barlow_value", ""))
             self.camera_pixel_size.setText(data.get("camera_pixel_size", ""))
-            # Mémorise le chemin du preset chargé dans fichier
             self.last_preset_path = path
             self.save_last_preset_path(path)
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, "Error", f"Unable to load preset:\n{e}")
 
     def save_last_preset_name(self):
-        # Mémorise le chemin du preset courant dans la variable de classe
         self.last_preset_path = self.get_preset_path()
 
     def closeEvent(self, event):
-        # Enregistre automatiquement dans le dernier preset utilisé
         try:
             data = {
                 "telescope_name": self.telescope_name.text() if hasattr(self, 'telescope_name') and self.telescope_name is not None else "",
@@ -725,12 +706,11 @@ class ImageViewer(QtWidgets.QWidget):
         self.img_item.setImage(self.current_img, autoLevels=True)
         self.img_view.setAspectLocked(True)  # Permet l'affichage sans forcer le carré
         self.img_view.autoRange()
-        # Ouvre le panneau gauche si une image est chargée
         left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
         if left_scroll:
             left_scroll.setVisible(True)
             if self.toggleLeftPanelButton:
-                self.toggleLeftPanelButton.setText("⯇")
+                self.toggleLeftPanelButton.setText("☰")
 
     def toggle_segment_mode(self):
         self.segment_mode = self.segment_btn.isChecked()
@@ -965,10 +945,8 @@ class ImageViewer(QtWidgets.QWidget):
             pass
 
     def update_object_selector(self):
-        # Calcule la taille réelle du segment (en km) pour filtrer les objets pertinents
         try:
             if self.last_segment_length_px is None:
-                # Si pas de segment, afficher tous les objets
                 self.object_selector.clear()
                 for name in self.object_dict:
                     self.object_selector.addItem(name)
@@ -1003,7 +981,6 @@ class ImageViewer(QtWidgets.QWidget):
             max_km = obj.get("max_km", float("inf"))
             if real_length_km is None or (min_km <= real_length_km <= max_km):
                 self.object_selector.addItem(name)
-        # Si aucun objet n'est pertinent, on affiche tout de même tous les objets
         if self.object_selector.count() == 0:
             for name in self.object_dict:
                 self.object_selector.addItem(name)        
@@ -1071,7 +1048,6 @@ class ImageViewer(QtWidgets.QWidget):
             raise Exception(f"Error while saving image path: {e}")
 
     def load_last_image_path(self):
-        # Lit le chemin de la dernière image utilisée depuis le fichier
         try:
             if os.path.exists(self.LAST_IMAGE_PATH_FILE):
                 with open(self.LAST_IMAGE_PATH_FILE, "r", encoding="utf-8") as f:
@@ -1096,7 +1072,6 @@ class ImageViewer(QtWidgets.QWidget):
         return new_resize_event
 
     def update_graphics_background(self):
-        # Force la mise à jour du QPalette pour récupérer la couleur QSS
         self.graphics_widget.style().polish(self.graphics_widget)
         pal = self.graphics_widget.palette()
         bg_color = pal.color(self.graphics_widget.backgroundRole())
@@ -1123,11 +1098,11 @@ class FramelessImageViewer(ImageViewer):
             "light": QtGui.QColor("#3D314A")
         }
         self._border_color = self._border_colors.get(current_theme.lower() if current_theme else "light", QtGui.QColor("#18195c"))
-        self._border_width = 8  # Épaisseur du bord
-        self._border_style = QtCore.Qt.SolidLine  # Style du bord (SolidLine, DashLine, etc.)
-        self._corner_radius = 20  # Rayon des coins arrondis
+        self._border_width = 8 
+        self._border_style = QtCore.Qt.SolidLine
+        self._corner_radius = 20
         self._window_shape = 'rounded'  # 'rectangle', 'rounded', 'circle'
-        self._gradient_enabled = True  # Dégradé de fond
+        self._gradient_enabled = True
       
         
         # Récupérer la barre de titre depuis l'UI
@@ -1147,7 +1122,6 @@ class FramelessImageViewer(ImageViewer):
                 theme_combo.addItems(theme_names)
                 if current_theme and current_theme in theme_names:
                     theme_combo.setCurrentText(current_theme)
-                # Connecter la combo à la fonction de changement de thème
                 def on_theme_changed(theme_name): 
                     app = QApplication.instance()
                     if app:
@@ -1182,8 +1156,6 @@ class FramelessImageViewer(ImageViewer):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         rect = self.rect()
-        # Correction du centrage du bord :
-        # Utilise un margin flottant pour que le bord soit bien centré
         margin = self._border_width / 2
         border_rect = QtCore.QRectF(
             rect.left() + margin,
@@ -1192,16 +1164,13 @@ class FramelessImageViewer(ImageViewer):
             rect.height() - self._border_width
         )
 
-        # Dégradé ou couleur de fond
         if self._gradient_enabled:
-            # Couleurs de dégradé par thème
             theme_gradients = {
                 "dark": ("#1a2a49", "#3c4153"),
                 "light": ("#C8AD7F", "#fff5db"),
             }
             theme_name = getattr(self, 'current_theme', None)
             if theme_name is None:
-                # Essaye de récupérer depuis la combo
                 combo = self.findChild(QtWidgets.QComboBox, "theme_combo")
                 if combo:
                     theme_name = combo.currentText().lower()
@@ -1231,7 +1200,6 @@ class FramelessImageViewer(ImageViewer):
             self.setMask(QtGui.QRegion(mask_rect, QtGui.QRegion.Ellipse))
         elif self._window_shape == 'rounded':
             painter.drawRoundedRect(border_rect, self._corner_radius, self._corner_radius)
-            # Masque arrondi centré
             mask_rect = QtCore.QRect(
                 int(border_rect.left()),
                 int(border_rect.top()),
@@ -1334,12 +1302,7 @@ def load_last_theme():
 if __name__ == "__main__":
     try:
         app = QtWidgets.QApplication(sys.argv)
-        # Chargement des polices personnalisée
         def load_fonts(font_base_name=None):
-            """
-            Charge une police précise si font_base_name est donné,
-            sinon charge toutes les polices du dossier et retourne un dict {famille: chemin}.
-            """
             fonts_dir = resource_path(os.path.join("Library", "fonts"))
             font_families = {}
             if font_base_name:
@@ -1369,7 +1332,6 @@ if __name__ == "__main__":
                                     font_families[families[0]] = font_path
                             else:
                                 raise RuntimeError(f"Failed to load font: {font_path}")
-                # Si le dossier n'existe pas, ne rien faire (pas d'erreur)
             return font_families
 
         # Utilisation :
@@ -1380,7 +1342,7 @@ if __name__ == "__main__":
         icon_path = resource_path(os.path.join("objects_png", "Icon", "icon.png"))
         app.setWindowIcon(QtGui.QIcon(icon_path))
 
-        # --- Chargement des stylesheets ---
+        # Chargement des stylesheets 
         STYLESHEETS = {}
         styles_dir = resource_path(os.path.join("Main", "StyleSheets"))
         for path in glob.glob(os.path.join(styles_dir, "*.qss")):
@@ -1392,20 +1354,20 @@ if __name__ == "__main__":
         current_theme = last_theme if last_theme in STYLESHEETS else "Light"
         app.setStyleSheet(STYLESHEETS[current_theme])
 
-        # --- Création de la fenêtre principale avec sélecteur de thème ---
+        # Création de la fenêtre principale avec sélecteur de thème
         win = FramelessImageViewer(icon_path=icon_path, theme_names=list(STYLESHEETS.keys()), current_theme=current_theme)
         # Connexion du signal de changement de thème
         def on_theme_changed(theme_name):
             if theme_name in STYLESHEETS:
                 app.setStyleSheet(STYLESHEETS[theme_name])
-                win.graphics_widget.style().polish(win.graphics_widget)  # Force la palette à se mettre à jour
-                win.update_graphics_background()  # Met à jour le fond de la zone image
-                win.graphics_widget.update()      # Force le repaint
+                win.graphics_widget.style().polish(win.graphics_widget) 
+                win.update_graphics_background() 
+                win.graphics_widget.update() 
                 save_last_theme(theme_name)
         if hasattr(win, "title_bar") and hasattr(win.title_bar, "theme_changed"):
             win.title_bar.theme_changed.connect(on_theme_changed)
         win.setWindowIcon(QtGui.QIcon(icon_path))
-        win.setWindowTitle("SkyScale  - FITS/Image Viewer")
+        win.setWindowTitle("SkyScale")
         win.apply_button_effects()
         win.show()
         sys.exit(app.exec_())

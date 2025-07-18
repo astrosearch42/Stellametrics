@@ -1,83 +1,117 @@
 # SkyScale
 
-A PyQt5 application to visualize and compare astronomical images (FITS, PNG, JPG, etc.), measure distances, and add reference objects.
+SkyScale is a cross-platform PyQt5 application for visualizing, measuring, and comparing astronomical images (FITS, PNG, JPG, etc.). It allows you to measure distances, overlay reference objects, and manage instrument presets.
 
 ## Features
-- Visualization of FITS and standard images
-- Segment measurement and real distance calculation
-- Add reference objects (France, USA, Earth, Jupiter, ...)
-- Save and load presets
-- Generate a Windows executable
-- Convert SVG to ICO automatically with the provided script and personal CloudConvert's API 
+- View FITS and standard image formats
+- Draw segments and calculate real distances
+- Overlay reference objects (Earth, Jupiter, France, USA, etc.)
+- Save/load instrument presets
+- Customizable themes
+- Windows/macOS/Linux support (Python 3.8+)
+- Build a standalone executable (Windows)
+- Batch convert SVG to ICO/PNG for app icons (CloudConvert API supported)
 
-## Icon Conversion (SVG to ICO)
-If you want to use your own icon for the application:
-
-1. Convert your SVG to ICO using an online tool (e.g. https://cloudconvert.com/svg-to-ico).
-2. Place the ICO file in `objects_png/Icon/`.
-3. Use the provided script to convert all SVG files in that folder to ICO:
-   ```powershell
-   python objects_png/Icon/svg2ico.py
+## Icon Conversion (SVG to ICO/PNG)
+To use a custom icon:
+1. Place your SVG file(s) in `objects_png/Icon/`.
+2. Use the provided script to convert all SVGs to ICO and PNG:
+   ```bash
+   python objects_png/Icon/svg2ico-png.py
    ```
-   
-> Note: Direct SVG to ICO conversion in Python without external dependencies or internet is not possible. Use a personal API key in CloudConvert.com or convert SVG to PNG to ICO (at the end you must have a `icon.ico` in the `objects_png/Icon/` folder).
+   - Requires a CloudConvert API key (see script for details), and so a limited usage (10 conversions a day).
+   - Alternatively, use any online converter (e.g. https://cloudconvert.com/svg-to-ico) and place the resulting `icon.ico` in `objects_png/Icon/`.
 
-## Installation 
-In a bash/cmd shell:
-1. Enter in your working folder:
-   `cd <working directory path>`
-1. Create a python environment in that folder:
-   `python -m venv <env name>`
-2. Activate environment and enter it:
-   `<env name>/Scripts/activate`
-   `cd <env name>`
-2. Clone the repository:
-   `git clone https://github.com/astrosearch42/SkyScale`
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/astrosearch42/SkyScale
+   cd SkyScale
+   ```
+2. (Recommended) Create and activate a Python virtual environment:
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
 3. Install dependencies:
-   `pip install -r requirements.txt`
+   ```bash
+   pip install -r requirements.txt
+   ```
 4. Run the application:
-   `python SkyScale.py`
-
-
-## Building the Executable
-To create a standalone Windows executable (.exe) for SkyScale, follow these steps:
-1. Make sure all dependencies are installed in your environment:
-   `pip install -r requirements.txt`
-2. Install PyInstaller if not already installed:
-   `pip install pyinstaller`
-3. In your project folder, run the following command (PowerShell or cmd), it might take a while:
-   ```powershell
-   pyinstaller --onefile --windowed `
-      --icon "objects_png/Icon/icon2.ico" `
-      --add-data "objects_png;objects_png" `
-      --add-data "Main/ImageViewer.ui;Main" `
-      --add-data "Main/StyleSheets;Main/StyleSheets" `
-      --add-data "Library/distance_library.json;Library" `
-      --add-data "Library/de421.bsp;Library" `
-      --add-data "Library/fonts;Library/fonts" `
-      --add-data "preset;preset" `
-      Main/SkyScale.py
-   ```
-   - `--onefile` creates a single .exe file
-   - `--windowed` prevents a console window from opening
-   - `--icon` includes the application icon
-   - `--add-data` includes required files and folders (use `;` as separator on Windows)
-
-   If you encounter issues with the multi-line command above, use the following single-line version instead:
-
-   ```powershell
-   pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.png" --add-data "objects_png;objects_png" --add-data "objects_png/Icon/arrow_down.svg;objects_png/Icon" --add-data "Main/ImageViewer.ui;Main" --add-data "Main/StyleSheets;Main/StyleSheets" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "Library/fonts;Library/fonts" --add-data "preset;preset" Main/SkyScale.py
+   ```bash
+   python Main/SkyScale.py
    ```
 
-4. The executable will be created in the `dist` folder as `SkyScale.exe`.
+## Building a Standalone Executable (Windows)
+## Building on macOS/Linux
+1. Make sure you have Python 3.8+ and all dependencies installed (see Installation section).
+2. (Optional) Install PyInstaller:
+   ```bash
+   pip install pyinstaller
+   ```
+3. In the project root, run:
+   ```bash
+   pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.ico" \
+     --add-data "objects_png:objects_png" \
+     --add-data "Main/ImageViewer.ui:Main" \
+     --add-data "Main/StyleSheets:Main/StyleSheets" \
+     --add-data "Library/distance_library.json:Library" \
+     --add-data "Library/de421.bsp:Library" \
+     --add-data "Library/fonts:Library/fonts" \
+     --add-data "Preset:Preset" \
+     Main/SkyScale.py
+   ```
+   - On macOS/Linux, use `:` as the separator in `--add-data`.
+   - The executable will be created in the `dist` folder.
 
-5. (Optional) Create a shortcut to the executable:
-   - Open the `dist` folder where `SkyScale.exe` is located.
-   - Right-click on `SkyScale.exe` and select "Create shortcut".
-   - Move the shortcut to your Desktop or any convenient location for quick access.
+## Installing as a Python Package
+You can also install SkyScale as a Python package (pip installable):
+```bash
+pip install .
+```
+or directly from GitHub:
+```bash
+pip install git+https://github.com/astrosearch42/SkyScale
+```
+Then launch with:
+```bash
+python -m Main.SkyScale
+```
+1. Install PyInstaller:
+   ```bash
+   pip install pyinstaller
+   ```
+2. In the project root, run:
+   ```powershell
+   pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.ico" \
+     --add-data "objects_png;objects_png" \
+     --add-data "Main/ImageViewer.ui;Main" \
+     --add-data "Main/StyleSheets;Main/StyleSheets" \
+     --add-data "Library/distance_library.json;Library" \
+     --add-data "Library/de421.bsp;Library" \
+     --add-data "Library/fonts;Library/fonts" \
+     --add-data "Preset;Preset" \
+     Main/SkyScale.py
+   ```
+   - On Windows, use `;` as the separator in `--add-data`. On macOS/Linux, use `:` instead.
+   - If you encounter issues with the multi-line command, use a single line (see PyInstaller docs) or run this line :
+   ```powershell
+   pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.ico" --add-data "objects_png;objects_png" --add-data "Main/ImageViewer.ui;Main" --add-data "Main/StyleSheets;Main/StyleSheets" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "Library/fonts;Library/fonts" --add-data "Preset;Preset" Main/SkyScale.py
+   ```
 
-6. Double-click `dist/SkyScale.exe` (or your shortcut) to launch the application.
+3. The executable will be created in the `dist` folder as `SkyScale.exe`.
+
+## Usage
+- Launch the app with `python Main/SkyScale.py` or by double-clicking the executable (Windows).
+- To create a desktop shortcut (Windows):
+  1. Open the `dist` folder where `SkyScale.exe` is located.
+  2. Right-click on `SkyScale.exe` and select "Create shortcut".
+  3. Move the shortcut to your Desktop or any convenient location for quick access.
+- Open images, draw segments, add reference objects, and save your presets.
+- For advanced usage and troubleshooting, see the code comments and issues on GitHub.
 
 ## Author
-- Pseudo : astrosearch42 
-- GitHub : https://github.com/astrosearch42
+- GitHub: [Maxime Bertrand](https://github.com/astrosearch42)
