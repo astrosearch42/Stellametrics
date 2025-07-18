@@ -46,40 +46,6 @@ To use a custom icon:
    ```
 
 ## Building a Standalone Executable (Windows)
-## Building on macOS/Linux
-1. Make sure you have Python 3.8+ and all dependencies installed (see Installation section).
-2. (Optional) Install PyInstaller:
-   ```bash
-   pip install pyinstaller
-   ```
-3. In the project root, run:
-   ```bash
-   pyinstaller --onefile --windowed --icon "objects_png/Icon/icon.ico" \
-     --add-data "objects_png:objects_png" \
-     --add-data "Main/ImageViewer.ui:Main" \
-     --add-data "Main/StyleSheets:Main/StyleSheets" \
-     --add-data "Library/distance_library.json:Library" \
-     --add-data "Library/de421.bsp:Library" \
-     --add-data "Library/fonts:Library/fonts" \
-     --add-data "Preset:Preset" \
-     Main/SkyScale.py
-   ```
-   - On macOS/Linux, use `:` as the separator in `--add-data`.
-   - The executable will be created in the `dist` folder.
-
-## Installing as a Python Package
-You can also install SkyScale as a Python package (pip installable):
-```bash
-pip install .
-```
-or directly from GitHub:
-```bash
-pip install git+https://github.com/astrosearch42/SkyScale
-```
-Then launch with:
-```bash
-python -m Main.SkyScale
-```
 1. Install PyInstaller:
    ```bash
    pip install pyinstaller
