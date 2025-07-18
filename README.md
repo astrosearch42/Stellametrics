@@ -40,7 +40,8 @@ The fastest and easiest way to use SkyScale is to download the pre-built executa
 
 ---
 
-For advanced users or those on Linux/macOS, you can install from source as described below.
+For advanced users or those who wants to have the full code, you can install from source as described below.
+
 **Linux prerequisites:**
 If you are on Linux, you may need to install some system packages first:
 ```bash
