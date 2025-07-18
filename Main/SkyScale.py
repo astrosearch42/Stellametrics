@@ -145,10 +145,10 @@ class ImageViewer(QtWidgets.QWidget):
         self.rotation_count = 0
         self.distance_library = []
         self.object_dict = {
-            "France": {"image": resource_path(os.path.join("objects_png", "france.png")), "diameter": 975, "min_km": 10, "max_km": 10000},
-            "USA": {"image": resource_path(os.path.join("objects_png", "usa.png")), "diameter": 4500, "min_km": 100, "max_km": 20000},
-            "Earth": {"image": resource_path(os.path.join("objects_png", "earth.png")), "diameter": 12742, "min_km": 100, "max_km": 2e6},
-            "Jupiter": {"image": resource_path(os.path.join("objects_png", "jupiter.png")), "diameter": 139822, "min_km": 1000, "max_km": 1e8},
+            "France": {"image": resource_path(os.path.join("Assets", "Add_Objects", "france.png")), "diameter": 975, "min_km": 10, "max_km": 10000},
+            "USA": {"image": resource_path(os.path.join("Assets", "Add_Objects", "usa.png")), "diameter": 4500, "min_km": 100, "max_km": 20000},
+            "Earth": {"image": resource_path(os.path.join("Assets", "Add_Objects", "earth.png")), "diameter": 12742, "min_km": 100, "max_km": 2e6},
+            "Jupiter": {"image": resource_path(os.path.join("Assets", "Add_Objects", "jupiter.png")), "diameter": 139822, "min_km": 1000, "max_km": 1e8},
         }
         self.last_image_path = self.load_last_image_path() or ""
         self.last_preset_path = self.load_last_preset_path() or ""
@@ -1339,7 +1339,7 @@ if __name__ == "__main__":
         # serena_family = list(load_fonts("Serena").keys())[0] # charge une police précise
 
 
-        icon_path = resource_path(os.path.join("objects_png", "Icon", "icon.png"))
+        icon_path = resource_path(os.path.join("Assets", "Icon", "icon.png"))
         app.setWindowIcon(QtGui.QIcon(icon_path))
 
         # Chargement des stylesheets 

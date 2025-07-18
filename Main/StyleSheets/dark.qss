@@ -1,4 +1,3 @@
-
 /* Styles communs */
 QWidget {
     background-color: transparent;
@@ -162,6 +161,32 @@ QDateEdit {
     font-size: 9pt;
     min-height: 40px;
     max-width: 120px;
+}
+QDateEdit QCalendarWidget {
+    background: #232629;
+    border: 1.5px solid #7700ff;
+    border-radius: 8px;
+    color: #F0EBE3;
+    font-size: 9pt;
+}
+QCalendarWidget QWidget {
+    background: #232629;
+    color: #F0EBE3;
+}
+QCalendarWidget QAbstractItemView {
+    background: #232629;
+    color: #F0EBE3;
+    selection-background-color: #7700ff;
+    selection-color: #fff;
+}
+QCalendarWidget QToolButton {
+    background: #353b3c;
+    color: #F0EBE3;
+    border-radius: 6px;
+}
+QCalendarWidget QSpinBox {
+    background: #232629;
+    color: #F0EBE3;
 }
 QWidget#mainLayout {
     border-radius: 24px;

@@ -35,7 +35,7 @@ QInputDialog QSpinBox:focus, QInputDialog QDoubleSpinBox:focus {
     font-size: 8.2pt;
     padding: 6px;
 }
-QComboBox{
+QComboBox {
     background: #F8FFF1;
     border: 1.5px solid #3D314A;
     border-radius: 8px;
@@ -162,6 +162,32 @@ QDateEdit {
     font-size: 9pt;
     min-height: 40px;
     max-width: 120px;
+}
+QDateEdit QCalendarWidget {
+    background: #F8FFF1;
+    border: 1.5px solid #3D314A;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 9pt;
+}
+QCalendarWidget QWidget {
+    background: #F8FFF1;
+    color: #232629;
+}
+QCalendarWidget QAbstractItemView {
+    background: #F8FFF1;
+    color: #232629;
+    selection-background-color: #3D314A;
+    selection-color: #fff;
+}
+QCalendarWidget QToolButton {
+    background: #AB8476;
+    color: #232629;
+    border-radius: 6px;
+}
+QCalendarWidget QSpinBox {
+    background: #F8FFF1;
+    color: #232629;
 }
 QWidget#mainLayout {
     border-radius: 24px;
