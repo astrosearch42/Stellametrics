@@ -28,15 +28,22 @@ The fastest and easiest way to use Stellametrics is to download the pre-built ex
 
 **This method is highly recommended for users who want a fast and hassle-free setup.**
 
+
 ---
-
-For advanced users or those who wants to have the full code, you can install from source as described below.
-
-**Linux prerequisites:**
+<!-- [LINUX PREREQUISITES - COMMENTÉ POUR VISIBILITÉ]
+Linux prerequisites:
 If you are on Linux, you may need to install some system packages first:
 ```bash
 sudo apt install python3.11-venv git binutils
 ```
+FIN LINUX PREREQUISITES]
+-->
+---
+If you are on Linux, you may need to install some system packages first:
+```bash
+sudo apt install python3.11-venv git binutils
+```
+-->
 
 1. Clone the repository:
    ```bash
