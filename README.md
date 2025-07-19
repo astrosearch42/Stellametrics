@@ -123,7 +123,7 @@ To use a custom icon:
    - Alternatively, use any online converter (e.g. https://cloudconvert.com/svg-to-ico) and place the resulting `icon.ico` in `Assets/Icon/`.
 
 
-### 3. Uninstallation
+## Uninstallation
 
 #### 1. Uninstall the Executable (Windows)
 To uninstall Stellametrics if you used the pre-built executable, simply delete the file `Stellametrics.exe` (and its shortcut if you created one). No other steps are required.
