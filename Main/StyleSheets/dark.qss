@@ -15,7 +15,7 @@ QPushButton {
     padding: 5px 10px;
     letter-spacing: 1px;
 }
-QPushButton:hover, QPushButton:pressed, QPushButton#segment_btn:checked {
+QPushButton:hover, QPushButton:pressed, QPushButton#segment_btn:checked, QPushButton#segment_btn_custom:checked {
     background: #3e4446;
 }
 QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QDialog, QMessageBox, QFileDialog, QInputDialog QSpinBox, QInputDialog QDoubleSpinBox {
@@ -90,7 +90,8 @@ QLabel#telescope_caract_title,
 QLabel#barlow_reducer_title,
 QLabel#camera_caract_title,
 QLabel#object_distance_title,
-QLabel#astro_obj_skyfield_title {
+QLabel#astro_obj_skyfield_title,
+QLabel#label_object_for_scale {
     background: transparent;
     font-size: 11pt;
     font-weight: 400;
@@ -153,6 +154,7 @@ QTabBar::tab:selected {
     font-weight: 600;
 }
 /* Exceptions et cas particuliers */
+/* Date et Calendar */
 QDateEdit {
     background: #2b2f31;
     border: 1.5px solid #444;
@@ -188,6 +190,35 @@ QCalendarWidget QSpinBox {
     background: #232629;
     color: #F0EBE3;
 }
+QCalendarWidget QSpinBox:focus {
+    background: #232629;
+    color: #F0EBE3;
+    border: 1.5px solid #3D314A;
+}
+QCalendarWidget QTableView {
+    qproperty-showGrid: true;
+    gridline-color: #7700ff;
+}
+QCalendarWidget QHeaderView {
+    background: #232629;
+    color: #F0EBE3;
+    font-weight: bold;
+}
+QCalendarWidget QHeaderView::section {
+    background: #232629;
+    color: #F0EBE3;
+    font-weight: bold;
+    border: none;
+}
+QCalendarWidget QSpinBox, 
+QCalendarWidget QComboBox, 
+QCalendarWidget QToolButton {
+    min-height: 26px;
+    max-height: 26px;
+    font-size: 9pt;
+    padding: 4px 10px;
+}
+/**/
 QWidget#mainLayout {
     border-radius: 24px;
     border: none;
@@ -222,6 +253,13 @@ QWidget#CustomTitleBar QLabel#title_label {
     font-weight: 700;
     color: #F0EBE3;
     letter-spacing: 1px;
+    font-family: 'Serena', 'Century Gothic', Arial, 'Liberation Sans', sans-serif, 'Segoe UI Variable';
+}
+QWidget#CustomTitleBar QLabel#version_label {
+    font-size: 7pt;
+    font-weight: 100;
+    color: #F0EBE3;
+    font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;
 }
 QWidget#CustomTitleBar QComboBox {
     font-size: 11pt;
@@ -235,15 +273,13 @@ QWidget#CustomTitleBar QComboBox {
 QWidget#CustomTitleBar QLabel#icon_label {
     margin-right: 8px;
 }
-QWidget#CustomTitleBar QLabel {
-    color: #F0EBE3;
-    font-size: 13pt;
-    font-weight: 600;
-    font-family: 'Serena', 'Century Gothic', Arial, 'Liberation Sans', sans-serif, 'Segoe UI Variable';
-}
 QPushButton#open_btn, QPushButton#remove_image_btn {
     min-width: 160px;
     min-height: 35px;
+    font-size: 11pt;
+    font-weight: 600;
+}
+QPushButton#save_object_btn {
     font-size: 11pt;
     font-weight: 600;
 }
@@ -261,7 +297,7 @@ QPushButton#min_btn:hover, QPushButton#max_btn:hover {
     background: #3e4446;
     color: #fff;
 }
-QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover, QPushButton#remove_image_btn:hover {
+QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover, QPushButton#remove_image_btn:hover, QPushButton#clear_objects_btn:hover {
     background: #ff0000;
     color: #fff;
 }
@@ -331,4 +367,33 @@ QComboBox#distance_combo {
     max-width: 130px;
     min-height: 27px;
     max-height: 27px;
+}
+QLabel#InstantToolTip {
+    color: #fff;
+    background: #222;
+    border: 1px solid #2663eb;
+    padding: 4px;
+    border-radius: 6px;
+    font-size: 10pt;
+    /* Ajoutez d'autres propriétés si besoin */
+}
+QFrame#SeparatorLOAD_OBJ, QFrame#SeparatorFILL_DRAW, QFrame#Separator_SAVEOBJ  {
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 #3e4446,
+        stop:0.5 #7700ff,
+        stop:1 #3e4446
+    );
+    min-height: 8px;
+    max-height: 8px;
+    border: none;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border-radius: 3px;
+    opacity: 0.8;
+}
+QLineEdit#real_length_line, QLineEdit#length_line {
+    font-weight : 600pt;
+    font-size: 11pt;
+    qproperty-alignment: 'AlignCenter';
 }

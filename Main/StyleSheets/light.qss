@@ -1,4 +1,3 @@
-
 /* Styles communs */
 QWidget {
     background-color: transparent;
@@ -16,7 +15,7 @@ QPushButton {
     padding: 5px 10px;
     letter-spacing: 1px;
 }
-QPushButton:hover, QPushButton:pressed, QPushButton#segment_btn:checked {
+QPushButton:hover, QPushButton:pressed, QPushButton#segment_btn:checked, QPushButton#segment_btn_custom:checked {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #b39cac, stop:1 #51354c);
 }
 QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QDialog, QMessageBox, QFileDialog, QInputDialog QSpinBox, QInputDialog QDoubleSpinBox {
@@ -91,7 +90,8 @@ QLabel#telescope_caract_title,
 QLabel#barlow_reducer_title,
 QLabel#camera_caract_title,
 QLabel#object_distance_title,
-QLabel#astro_obj_skyfield_title {
+QLabel#astro_obj_skyfield_title,
+QLabel#label_object_for_scale {
     background: transparent;
     font-size: 11pt;
     font-weight: 400;
@@ -154,6 +154,7 @@ QTabBar::tab:selected {
     font-weight: 600;
 }
 /* Exceptions et cas particuliers */
+/* Date et Calendar */
 QDateEdit {
     background: #F8FFF1;
     border: 1.5px solid #3D314A;
@@ -177,7 +178,7 @@ QCalendarWidget QWidget {
 QCalendarWidget QAbstractItemView {
     background: #F8FFF1;
     color: #232629;
-    selection-background-color: #3D314A;
+    selection-background-color: #AB8476;
     selection-color: #fff;
 }
 QCalendarWidget QToolButton {
@@ -188,6 +189,23 @@ QCalendarWidget QToolButton {
 QCalendarWidget QSpinBox {
     background: #F8FFF1;
     color: #232629;
+}
+QCalendarWidget QSpinBox:focus {
+    background: #AB8476;
+    color: #232629;
+    border: 1.5px solid #3D314A;
+}
+QCalendarWidget QTableView {
+    qproperty-showGrid: true;
+    gridline-color: #3D314A;
+}
+QCalendarWidget QSpinBox, 
+QCalendarWidget QComboBox, 
+QCalendarWidget QToolButton {
+    min-height: 26px;
+    max-height: 26px;
+    font-size: 9pt;
+    padding: 4px 10px;
 }
 QWidget#mainLayout {
     border-radius: 24px;
@@ -235,6 +253,13 @@ QWidget#CustomTitleBar QLabel#title_label {
     font-weight: 700;
     color: #232629;
     letter-spacing: 1px;
+    font-family: 'Serena', 'Century Gothic', Arial, 'Liberation Sans', sans-serif, 'Segoe UI Variable';
+}
+QWidget#CustomTitleBar QLabel#version_label {
+    font-size: 7pt;
+    font-weight: 100;
+    color: #232629;
+    font-family: 'Century Gothic', Arial, 'Liberation Sans', sans-serif;
 }
 QWidget#CustomTitleBar QComboBox {
     font-size: 11pt;
@@ -247,12 +272,6 @@ QWidget#CustomTitleBar QComboBox {
 }
 QWidget#CustomTitleBar QLabel#icon_label {
     margin-right: 8px;
-}
-QWidget#CustomTitleBar QLabel {
-    color: #232629;
-    font-size: 13pt;
-    font-weight: 600;
-    font-family: 'Serena', 'Century Gothic', Arial, 'Liberation Sans', sans-serif, 'Segoe UI Variable';
 }
 QPushButton#open_btn, QPushButton#remove_image_btn {
     min-width: 160px;
@@ -274,7 +293,7 @@ QPushButton#min_btn:hover, QPushButton#max_btn:hover {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #b39cac, stop:1 #80647b);
     color: #fff;
 }
-QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover, QPushButton#remove_image_btn:hover  {
+QPushButton#close_btn:hover, QPushButton#remove_distance_btn:hover, QPushButton#remove_image_btn:hover, QPushButton#clear_objects_btn:hover  {
     background: #ff0000;
     color: #fff;
 }
@@ -349,4 +368,32 @@ QComboBox#distance_combo {
     max-width: 130px;
     min-height: 27px;
     max-height: 27px;
+}
+QLabel#InstantToolTip {
+    color: #232629;
+    background: #fffbea;
+    border: 1px solid #3D314A;
+    padding: 4px;
+    border-radius: 6px;
+    font-size: 10pt;
+}
+QFrame#SeparatorLOAD_OBJ, QFrame#SeparatorFILL_DRAW, QFrame#Separator_SAVEOBJ {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:0,
+        stop:0 #51354c,
+        stop:0.5 #b39cac,
+        stop:1 #51354c
+    );
+    min-height: 8px;
+    max-height: 8px;
+    border: none;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border-radius: 3px;
+    opacity: 0.8;
+}
+QLineEdit#real_length_line, QLineEdit#length_line {
+    font-weight : 400pt;
+    font-size: 11pt;
+    qproperty-alignment: 'AlignCenter';
 }

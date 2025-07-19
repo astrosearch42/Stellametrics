@@ -51,19 +51,7 @@
       <item>
        <widget class="QLabel" name="title_label">
         <property name="text">
-         <string>SkyScale</string>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>80</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>180</width>
-          <height>32</height>
-         </size>
+         <string>Stellametrics</string>
         </property>
        </widget>
       </item>
@@ -93,6 +81,22 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="version_label">
+        <property name="text">
+         <string>Version : 1.0.0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="minimumHeight">
+         <number>20</number>
+        </property>
+        <property name="maximumHeight">
+         <number>20</number>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QWidget" name="titleBarBtnWidget">
@@ -132,7 +136,7 @@
             <property name="minimumHeight">
                 <number>60</number>
             </property>
-            <layout class="QHBoxLayout" name="topButtonBarLayout" stretch="0,1,1,10">
+            <layout class="QHBoxLayout" name="topButtonBarLayout" stretch="0,0,0,0">
                     <property name="spacing">
                         <number>10</number>
                     </property>
@@ -143,7 +147,7 @@
                         <number>0</number>
                     </property>
                     <property name="rightMargin">
-                        <number>0</number>
+                        <number>10</number>
                     </property>
                     <property name="bottomMargin">
                         <number>0</number>
@@ -185,6 +189,29 @@
                   </property>
                  </spacer>
                 </item>
+                <item>
+                 <widget class="QLabel" name="author_label">
+                  <property name="text">
+                   <string>Author : Maxime Bertrand</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                  <property name="minimumHeight">
+                   <number>30</number>
+                  </property>
+                  <property name="maximumHeight">
+                   <number>30</number>
+                  </property>
+                 </widget>
+                </item>
+                <item alignment="Qt::AlignRight|Qt::AlignVCenter">
+                 <widget class="QPushButton" name="link_btn">
+                  <property name="text">
+                   <string>🌐</string>
+                  </property>
+                 </widget>
+                </item>
             </layout>
         </widget>
     </item>
@@ -207,23 +234,6 @@
         </rect>
        </property>
        <layout class="QVBoxLayout" name="leftLayout">
-        <item>
-         <widget class="QPushButton" name="segment_btn">
-          <property name="text">
-           <string>Draw a segment</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="length_label">
-          <property name="text">
-           <string>Segment length:</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QGroupBox" name="telescope_group">
           <layout class="QFormLayout" name="telescope_layout">
@@ -375,16 +385,39 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="save_btn">
-          <property name="text">
-           <string>Save preset</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="save_load_layout">
+          <item>
+           <widget class="QPushButton" name="save_btn">
+            <property name="text">
+             <string>Save preset</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="load_btn">
+            <property name="text">
+             <string>Load preset</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="load_btn">
-          <property name="text">
-           <string>Load preset</string>
+         <widget class="Line" name="SeparatorLOAD_OBJ">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="midLineWidth">
+           <number>10</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -592,6 +625,42 @@
          </widget>
         </item>
         <item>
+         <widget class="Line" name="SeparatorFILL_DRAW">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="midLineWidth">
+           <number>10</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="segment_btn">
+          <property name="text">
+           <string>Measure the Object</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="length_line">
+          <property name="placeholderText">
+           <string>Object length (px)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="calc_btn">
           <property name="text">
            <string>Calculate real length</string>
@@ -599,9 +668,28 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="real_length_label">
-          <property name="text">
-           <string>Real object length:</string>
+         <widget class="QLineEdit" name="real_length_line">
+          <property name="placeholderText">
+           <string>Real object length</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="Separator_SAVEOBJ">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="midLineWidth">
+           <number>10</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -627,18 +715,22 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="add_object_btn">
-          <property name="text">
-           <string>Add selected object</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="clear_objects_btn">
-          <property name="text">
-           <string>Clear all objects</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="AddClearLayout">
+          <item>
+           <widget class="QPushButton" name="add_object_btn">
+            <property name="text">
+             <string>Add selected object</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="clear_objects_btn">
+            <property name="text">
+             <string>Clear all objects</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QPushButton" name="save_object_btn">
@@ -689,22 +781,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="author_label">
-     <property name="text">
-      <string>Author : Maxime Bertrand</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-     <property name="minimumHeight">
-      <number>20</number>
-     </property>
-     <property name="maximumHeight">
-      <number>24</number>
-     </property>
     </widget>
    </item>
   </layout>
