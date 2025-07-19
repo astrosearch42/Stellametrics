@@ -3,7 +3,6 @@ import sys
 import glob
 import json
 import traceback
-
 from pathlib import Path
 import webbrowser
 import tempfile  # Ajouté pour le chemin temporaire

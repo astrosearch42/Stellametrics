@@ -27,6 +27,8 @@ The fastest and easiest way to use Stellametrics is to download the pre-built ex
 3. Double-click `Stellametrics.exe` to launch the application. No need to install Python or any dependencies.
 4. (Optional) Create a shortcut for quick access: right-click on `Stellametrics.exe` → "Create shortcut" → move the shortcut to your Desktop.
 
+**NB:** When you first open `Stellametrics.exe`, Windows may display a security warning (SmartScreen) saying that the publisher is unknown. This is normal for unsigned applications. You can safely click on "More info" and then "Run anyway" to launch the application. Stellametrics does not contain any malware or unwanted software. You can check by yourself in the main code.
+
 **This method is highly recommended for users who want a fast and hassle-free setup.**
 
 ### 2. Installation with Git Clone
