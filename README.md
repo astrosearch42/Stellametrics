@@ -47,7 +47,7 @@ sudo apt install python3.11-venv git binutils
    ```bash
    python -m venv Stellametrics.env
    # On Windows:
-   venv\Scripts\activate
+   Stellametrics.env\Scripts\activate
    # On macOS/Linux:
    source Stellametrics.env/bin/activate
    ```
