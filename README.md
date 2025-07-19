@@ -22,7 +22,7 @@ Stellametrics is a cross-platform PyQt5 application for visualizing, measuring, 
 The fastest and easiest way to use Stellametrics is to download the pre-built executable:
 
 1. Download the file `!Executable/Stellametrics.exe`.
-   **- You can also download the folder itself to get images to test the app**
+   - You can also download the folder itself to get images to test the app
 2. Place `Stellametrics.exe` wherever you want (Desktop, Documents, external drive, etc.).
 3. Double-click `Stellametrics.exe` to launch the application. No need to install Python or any dependencies.
 4. (Optional) Create a shortcut for quick access: right-click on `Stellametrics.exe` → "Create shortcut" → move the shortcut to your Desktop.
