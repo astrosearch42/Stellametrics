@@ -5,6 +5,7 @@ import json
 import traceback
 from pathlib import Path
 import webbrowser
+import tempfile  # Ajouté pour le chemin temporaire
 
 import numpy as np
 import pyqtgraph as pg
@@ -746,8 +747,8 @@ class ImageViewer(QtWidgets.QWidget):
                 pil_img = Image.open(path)
                 pil_img = ImageOps.exif_transpose(pil_img)
                 pil_img = pil_img.transpose(Image.ROTATE_270)
-                if pil_img.mode == "RGB":
-                    img = np.array(pil_img).astype(np.float32) / 255.0
+                if pil_img.mode in ("RGB", "RGBA", "P"):
+                    img = np.array(pil_img.convert("RGB")).astype(np.float32) / 255.0
                 else:
                     img = np.array(pil_img.convert("L")).astype(np.float32) / 255.0
             except Exception as e:
@@ -1018,9 +1019,30 @@ class ImageViewer(QtWidgets.QWidget):
         else:
             QtWidgets.QMessageBox.information(self, "Saved", f"Image saved as:\n{save_path}")
 
+    def get_user_distance_library_path(self):
+        # Place le fichier modifiable dans AppData/Local/Temp/Stellametrics/distance_library.json
+        temp_dir = os.path.join(tempfile.gettempdir(), "Stellametrics")
+        os.makedirs(temp_dir, exist_ok=True)
+        return os.path.join(temp_dir, "distance_library.json")
+
+    def get_default_distance_library_path(self):
+        # Fichier par défaut dans le bundle
+        return resource_path(os.path.join("Library", "distance_library.json"))
+
     def load_distance_library(self):
-        # Correction du chemin du fichier JSON
-        self.distance_library_path = resource_path(os.path.join("Library", "distance_library.json"))
+        self.distance_library_path = self.get_user_distance_library_path()
+        # Si le fichier utilisateur n'existe pas, le copier depuis le bundle
+        if not os.path.exists(self.distance_library_path):
+            try:
+                with open(self.get_default_distance_library_path(), "r", encoding="utf-8") as fsrc:
+                    data = fsrc.read()
+                with open(self.distance_library_path, "w", encoding="utf-8") as fdst:
+                    fdst.write(data)
+            except Exception:
+                # Si la copie échoue, crée un fichier minimal
+                with open(self.distance_library_path, "w", encoding="utf-8") as fdst:
+                    json.dump([{"name": "Andromeda", "value": 778000, "unit": "pc"}], fdst)
+        # Charger le fichier utilisateur
         try:
             with open(self.distance_library_path, "r", encoding="utf-8") as f:
                 self.distance_library = json.load(f)
@@ -1031,6 +1053,15 @@ class ImageViewer(QtWidgets.QWidget):
         self.distance_combo.clear()
         for d in self.distance_library:
             self.distance_combo.addItem(f"{d['name']} ({d['value']} {d['unit']})")
+
+    def save_distance_library(self):
+        try:
+            with open(self.distance_library_path, "w", encoding="utf-8") as f:
+                json.dump(self.distance_library, f, indent=2)
+            # Affiche le chemin utilisé pour debug
+            QtWidgets.QMessageBox.information(self, "Debug", f"distance_library.json enregistré dans :\n{self.distance_library_path}")
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(self, "Erreur", f"Impossible d'enregistrer la bibliothèque de distances :\n{e}\nChemin : {self.distance_library_path}")
 
     def select_distance_from_library(self):
         idx = self.distance_combo.currentIndex()
