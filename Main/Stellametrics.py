@@ -3,6 +3,7 @@ import sys
 import glob
 import json
 import traceback
+
 from pathlib import Path
 import webbrowser
 import tempfile  # Ajouté pour le chemin temporaire
@@ -23,6 +24,11 @@ from PyQt5.QtWidgets import (
 from skyfield.api import load
 
 version= "1.0.0"  # Application version in MAJOR.MINOR.PATCH format
+
+# Set environment variables for high DPI scaling
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+os.environ["QT_SCALE_FACTOR"] = "1"
+os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
 
 # Root directory (the folder containing 'Main', 'Library', etc.)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -155,11 +161,26 @@ class ImageViewer(QtWidgets.QWidget):
     LAST_IMAGE_PATH_FILE = os.path.join(CONFIG_DIR, "Stellametrics_last_image.txt")
     LAST_PRESET_PATH_FILE = os.path.join(CONFIG_DIR, "Stellametrics_last_preset.txt")
 
+
     def __init__(self):
+        # Forcer le support du scaling DPI (avant QApplication si possible)
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
         super().__init__()
         # Fix UI file path
         uic.loadUi(resource_path(os.path.join("Main", "ImageViewer.ui")), self)
         self.setWindowTitle("Stellametrics")
+
+        # Redimensionner la fenêtre selon la taille de l'écran (80% de la taille)
+        screen = QtWidgets.QApplication.primaryScreen()
+        size = screen.size()
+        self.resize(int(size.width() * 0.8), int(size.height() * 0.8))
+        self.move(int(size.width() * 0.1), int(size.height() * 0.1))
+
+        # Forcer la police à s'adapter au DPI
+        font = self.font()
+        font.setPointSizeF(font.pointSizeF() * (self.logicalDpiY() / 96.0))
+        self.setFont(font)
 
         # Initialize instance variables
         self.segment_mode = False
