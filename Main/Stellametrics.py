@@ -1487,12 +1487,12 @@ if __name__ == "__main__":
         STYLESHEETS = {}
         styles_dir = resource_path(os.path.join("Main", "StyleSheets"))
         for path in glob.glob(os.path.join(styles_dir, "*.qss")):
-            theme_name = os.path.splitext(os.path.basename(path))[0].capitalize()
+            theme_name = os.path.splitext(os.path.basename(path))[0].lower()
             with open(path, "r", encoding="utf-8") as f:
                 STYLESHEETS[theme_name] = f.read()
 
         last_theme = load_last_theme()
-        current_theme = last_theme if last_theme in STYLESHEETS else "Light"
+        current_theme = last_theme if last_theme in STYLESHEETS else "light"
         app.setStyleSheet(STYLESHEETS[current_theme])
 
         # Création de la fenêtre principale avec sélecteur de thème
