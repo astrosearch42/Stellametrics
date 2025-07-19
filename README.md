@@ -123,5 +123,18 @@ To use a custom icon:
    - Alternatively, use any online converter (e.g. https://cloudconvert.com/svg-to-ico) and place the resulting `icon.ico` in `Assets/Icon/`.
 
 
+### 3. Uninstallation
+
+#### 1. Uninstall the Executable (Windows)
+To uninstall Stellametrics if you used the pre-built executable, simply delete the file `Stellametrics.exe` (and its shortcut if you created one). No other steps are required.
+
+#### 2. Remove the Python Environment (Source Install)
+If you installed from source and created a virtual environment, you can remove it by deleting the environment folder. For example:
+
+```bash
+rm -rf ./Stellametrics.env # Outside the folder
+```
+This will completely remove the isolated Python environment and all installed dependencies. If you only want to remove the cloned source code, simply delete the `Stellametrics` folder.
+
 ## Author
 - GitHub: [Maxime Bertrand](https://github.com/astrosearch42)
