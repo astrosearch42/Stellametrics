@@ -22,6 +22,7 @@ Stellametrics is a cross-platform PyQt5 application for visualizing, measuring, 
 The fastest and easiest way to use Stellametrics is to download the pre-built executable:
 
 1. Download the file `!Executable/Stellametrics.exe`.
+   **- You can also download the folder itself to get images to test the app**
 2. Place `Stellametrics.exe` wherever you want (Desktop, Documents, external drive, etc.).
 3. Double-click `Stellametrics.exe` to launch the application. No need to install Python or any dependencies.
 4. (Optional) Create a shortcut for quick access: right-click on `Stellametrics.exe` → "Create shortcut" → move the shortcut to your Desktop.
@@ -42,18 +43,22 @@ sudo apt install python3.11-venv git binutils
 - `binutils`  : a set of binary tools required by some Python packages during installation
 ---
 
-1. Clone the repository:
+
+1. Create and activate a Python virtual environment (Recommended):
    ```bash
-   git clone https://github.com/astrosearch42/Stellametrics
-   cd Stellametrics
-   ```
-2. (Recommended) Create and activate a Python virtual environment:
-   ```bash
+   cd <your-folder>   # (enter in the folder where you want to install the virutal environment, and so the project)
    python -m venv Stellametrics.env
    # On Windows:
    Stellametrics.env\Scripts\activate
    # On macOS/Linux:
    source Stellametrics.env/bin/activate
+   ```
+   **To deactivate the virtual environment just write ```deactivate```**
+2. Once activated, clone the repository in the environment:
+   ```bash
+   cd Stellametrics.env
+   git clone https://github.com/astrosearch42/Stellametrics
+   cd Stellametrics
    ```
 3. Install dependencies:
    ```bash
@@ -65,7 +70,7 @@ sudo apt install python3.11-venv git binutils
    ```
 
 ## Building a Standalone Executable (Windows)
-1. Install PyInstaller:
+1. Install PyInstaller (in the virtual environment):
    ```bash
    pip install pyinstaller
    ```
