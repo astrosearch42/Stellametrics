@@ -1,10 +1,12 @@
-import os
-import sys
 import glob
 import json
+import os
+import runpy
+import sys
+import tempfile  # Ajouté pour le chemin temporaire
 import traceback
-from pathlib import Path
 import webbrowser
+from pathlib import Path
 
 import numpy as np
 import pyqtgraph as pg
@@ -17,25 +19,42 @@ from PyQt5.QtWidgets import (
     QApplication,
     QGraphicsDropShadowEffect,
     QGraphicsLineItem,
-    QGraphicsPixmapItem
+    QGraphicsPixmapItem,
 )
-from skyfield.api import load
 
-version= "1.0.0"  # Application version in MAJOR.MINOR.PATCH format
+version = "1.1.0"  # Application version in MAJOR.MINOR.PATCH format
 
-# Root directory (the folder containing 'Main', 'Library', etc.)
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Root directory (the folder containing 'src', 'Library', etc.)
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+PACKAGE_ROOT = os.path.join("src", "stellametrics")
+
 
 def resource_path(relative_path):
-    if hasattr(sys, '_MEIPASS'):
+    if hasattr(sys, "_MEIPASS"):
         # PyInstaller case
         base_path = sys._MEIPASS
     else:
         base_path = PROJECT_ROOT
     return os.path.join(base_path, relative_path)
 
+
+def get_config_dir():
+    if hasattr(sys, "_MEIPASS"):
+        if os.name == "nt":
+            config_root = os.environ.get("LOCALAPPDATA")
+        else:
+            config_root = os.environ.get("XDG_CONFIG_HOME")
+            if not config_root:
+                config_root = os.path.join(Path.home(), ".config")
+        if config_root:
+            return os.path.join(config_root, "Stellametrics", "ConfigStellametrics")
+    return os.path.join(PROJECT_ROOT, "ConfigStellametrics")
+
+
 class CustomToolTipButton(QtWidgets.QPushButton):
-    def __init__(self, text='', tooltip='', parent=None):
+    def __init__(self, text="", tooltip="", parent=None):
         super().__init__(text, parent)
         self._tooltip_text = tooltip
         self._tooltip_label = None
@@ -43,7 +62,9 @@ class CustomToolTipButton(QtWidgets.QPushButton):
     def enterEvent(self, event):
         if self._tooltip_text:
             if not self._tooltip_label:
-                self._tooltip_label = QtWidgets.QLabel(self._tooltip_text, self.window())
+                self._tooltip_label = QtWidgets.QLabel(
+                    self._tooltip_text, self.window()
+                )
                 self._tooltip_label.setWindowFlags(Qt.ToolTip)
                 self._tooltip_label.setObjectName("InstantToolTip")
             pos = self.mapToGlobal(self.rect().bottomLeft())
@@ -57,9 +78,18 @@ class CustomToolTipButton(QtWidgets.QPushButton):
             self._tooltip_label.hide()
         super().leaveEvent(event)
 
+
 class CustomTitleBar(QtWidgets.QWidget):
     theme_changed = QtCore.pyqtSignal(str)  # Signal to notify theme change
-    def __init__(self, parent=None, icon_path=None, title="Stellametrics", theme_names=None, current_theme=None):
+
+    def __init__(
+        self,
+        parent=None,
+        icon_path=None,
+        title="Stellametrics",
+        theme_names=None,
+        current_theme=None,
+    ):
         super().__init__(parent)
         self.setObjectName("CustomTitleBar")
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
@@ -74,7 +104,11 @@ class CustomTitleBar(QtWidgets.QWidget):
         # Icon
         self.icon_label = QtWidgets.QLabel()
         if icon_path:
-            self.icon_label.setPixmap(QtGui.QPixmap(icon_path).scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+            self.icon_label.setPixmap(
+                QtGui.QPixmap(icon_path).scaled(
+                    24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                )
+            )
         layout.addWidget(self.icon_label)
         # Title
         self.title_label = QtWidgets.QLabel(self.title)
@@ -118,7 +152,6 @@ class CustomTitleBar(QtWidgets.QWidget):
         self._drag_pos = None
         self._is_maximized = False
 
-
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self._drag_pos = event.globalPos() - self.parent.frameGeometry().topLeft()
@@ -149,15 +182,16 @@ class CustomTitleBar(QtWidgets.QWidget):
     def on_theme_changed(self, theme_name):
         self.theme_changed.emit(theme_name)
 
+
 class ImageViewer(QtWidgets.QWidget):
-    CONFIG_DIR = os.path.join(PROJECT_ROOT, "Stellametrics_Config")
+    CONFIG_DIR = get_config_dir()
     LAST_IMAGE_PATH_FILE = os.path.join(CONFIG_DIR, "Stellametrics_last_image.txt")
     LAST_PRESET_PATH_FILE = os.path.join(CONFIG_DIR, "Stellametrics_last_preset.txt")
 
     def __init__(self):
         super().__init__()
         # Fix UI file path
-        uic.loadUi(resource_path(os.path.join("Main", "ImageViewer.ui")), self)
+        uic.loadUi(resource_path(os.path.join(PACKAGE_ROOT, "ImageViewer.ui")), self)
         self.setWindowTitle("Stellametrics")
 
         # Initialize instance variables
@@ -172,10 +206,38 @@ class ImageViewer(QtWidgets.QWidget):
         self.rotation_count = 0
         self.distance_library = []
         self.object_dict = {
-            "France": {"image": resource_path(os.path.join("Assets", "Add_Objects", "france.png")), "diameter": 975, "min_km": 10, "max_km": 10000},
-            "USA": {"image": resource_path(os.path.join("Assets", "Add_Objects", "usa.png")), "diameter": 4500, "min_km": 100, "max_km": 20000},
-            "Earth": {"image": resource_path(os.path.join("Assets", "Add_Objects", "earth.png")), "diameter": 12742, "min_km": 100, "max_km": 2e6},
-            "Jupiter": {"image": resource_path(os.path.join("Assets", "Add_Objects", "jupiter.png")), "diameter": 139822, "min_km": 1000, "max_km": 1e8},
+            "France": {
+                "image": resource_path(
+                    os.path.join("Assets", "Add_Objects", "france.png")
+                ),
+                "diameter": 975,
+                "min_km": 10,
+                "max_km": 10000,
+            },
+            "USA": {
+                "image": resource_path(
+                    os.path.join("Assets", "Add_Objects", "usa.png")
+                ),
+                "diameter": 4500,
+                "min_km": 100,
+                "max_km": 20000,
+            },
+            "Earth": {
+                "image": resource_path(
+                    os.path.join("Assets", "Add_Objects", "earth.png")
+                ),
+                "diameter": 12742,
+                "min_km": 100,
+                "max_km": 2e6,
+            },
+            "Jupiter": {
+                "image": resource_path(
+                    os.path.join("Assets", "Add_Objects", "jupiter.png")
+                ),
+                "diameter": 139822,
+                "min_km": 1000,
+                "max_km": 1e8,
+            },
         }
         self.last_image_path = self.load_last_image_path() or ""
         self.last_preset_path = self.load_last_preset_path() or ""
@@ -184,7 +246,7 @@ class ImageViewer(QtWidgets.QWidget):
         # Move loading after all widget initializations
 
         # Imposer la date d'aujourd'hui dans le QDateEdit skyfield_date_edit
-        if hasattr(self, 'skyfield_date_edit'):
+        if hasattr(self, "skyfield_date_edit"):
             self.skyfield_date_edit.setDate(QtCore.QDate.currentDate())
 
         # Add pyqtgraph widget to the right panel
@@ -214,7 +276,9 @@ class ImageViewer(QtWidgets.QWidget):
 
         # Add the coordinates label on the pyqtgraph widget
         self.coord_label = QtWidgets.QLabel("X: -, Y: -", self.graphics_widget)
-        self.coord_label.setStyleSheet("background: #222; color: #fff; padding: 4px; border-radius: 6px;")
+        self.coord_label.setStyleSheet(
+            "background: #222; color: #fff; padding: 4px; border-radius: 6px;"
+        )
         self.coord_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.coord_label.setFixedWidth(150)
         self.coord_label.setFixedHeight(28)
@@ -226,7 +290,7 @@ class ImageViewer(QtWidgets.QWidget):
         # Set the initial size of the splitter
         main_splitter = self.findChild(QtWidgets.QSplitter, "mainSplitter")
         if main_splitter:
-            main_splitter.setSizes([500, 1000])  
+            main_splitter.setSizes([500, 1000])
 
         # Get the title bar and connect the toggle button
         self.title_bar = self.findChild(QtWidgets.QWidget, "CustomTitleBar")
@@ -237,7 +301,9 @@ class ImageViewer(QtWidgets.QWidget):
                 version_label.setText(f"Version: {version}")
 
         # Get the toggleLeftPanelButton from the UI
-        self.toggleLeftPanelButton = self.findChild(QtWidgets.QPushButton, "toggleLeftPanelButton")
+        self.toggleLeftPanelButton = self.findChild(
+            QtWidgets.QPushButton, "toggleLeftPanelButton"
+        )
         # Hide the left panel at startup
         left_scroll = self.findChild(QtWidgets.QScrollArea, "leftScroll")
         if left_scroll:
@@ -257,10 +323,14 @@ class ImageViewer(QtWidgets.QWidget):
         self.save_object_btn.clicked.connect(self.save_image_with_object)
         self.add_distance_btn.clicked.connect(self.add_distance_to_library)
         self.remove_distance_btn.clicked.connect(self.remove_distance_from_library)
-        self.distance_combo.currentIndexChanged.connect(self.select_distance_from_library)
+        self.distance_combo.currentIndexChanged.connect(
+            self.select_distance_from_library
+        )
         self.skyfield_fill_btn.clicked.connect(self.fill_distance_with_skyfield)
         self.toggleLeftPanelButton.clicked.connect(self.toggle_left_panel)
-        self.link_btn.clicked.connect(lambda: webbrowser.open("https://github.com/astrosearch42"))
+        self.link_btn.clicked.connect(
+            lambda: webbrowser.open("https://github.com/astrosearch42")
+        )
         self.real_length_line.setReadOnly(True)
         self.length_line.setReadOnly(True)
 
@@ -272,8 +342,12 @@ class ImageViewer(QtWidgets.QWidget):
             new_btn = CustomToolTipButton(segment_btn_new.text(), tooltip, self)
             new_btn.setCheckable(segment_btn_new.isCheckable())
             new_btn.setChecked(segment_btn_new.isChecked())
-            setattr(self, "segment_btn", new_btn)
-            layout = segment_btn_new.parentWidget().layout() if segment_btn_new.parentWidget() else None
+            self.segment_btn = new_btn
+            layout = (
+                segment_btn_new.parentWidget().layout()
+                if segment_btn_new.parentWidget()
+                else None
+            )
             if layout:
                 idx = layout.indexOf(segment_btn_new)
                 layout.removeWidget(segment_btn_new)
@@ -292,22 +366,32 @@ class ImageViewer(QtWidgets.QWidget):
             tooltip = "Visit the project repository"
             new_link_btn = CustomToolTipButton(link_btn.text(), tooltip, self)
             new_link_btn.setObjectName("link_btn")
-            layout = link_btn.parentWidget().layout() if link_btn.parentWidget() else None
+            layout = (
+                link_btn.parentWidget().layout() if link_btn.parentWidget() else None
+            )
             if layout:
                 idx = layout.indexOf(link_btn)
                 layout.removeWidget(link_btn)
                 link_btn.deleteLater()
                 layout.insertWidget(idx, new_link_btn)
-            setattr(self, "link_btn", new_link_btn)
+            self.link_btn = new_link_btn
             # Reconnecte le bon signal
-            new_link_btn.clicked.connect(lambda: webbrowser.open("https://github.com/astrosearch42"))
+            new_link_btn.clicked.connect(
+                lambda: webbrowser.open("https://github.com/astrosearch42")
+            )
         # Add a new distance
         add_distance_btn = self.findChild(QtWidgets.QPushButton, "add_distance_btn")
         if add_distance_btn:
             tooltip = "Add a new distance measurement to the library"
-            new_add_distance_btn = CustomToolTipButton(add_distance_btn.text(), tooltip, self)
+            new_add_distance_btn = CustomToolTipButton(
+                add_distance_btn.text(), tooltip, self
+            )
             new_add_distance_btn.setObjectName("add_distance_btn")
-            layout = add_distance_btn.parentWidget().layout() if add_distance_btn.parentWidget() else None
+            layout = (
+                add_distance_btn.parentWidget().layout()
+                if add_distance_btn.parentWidget()
+                else None
+            )
             if layout:
                 idx = layout.indexOf(add_distance_btn)
                 layout.removeWidget(add_distance_btn)
@@ -316,12 +400,32 @@ class ImageViewer(QtWidgets.QWidget):
                 if isinstance(layout, QtWidgets.QFormLayout):
                     # Find the row containing the widget
                     for row in range(layout.rowCount()):
-                        if layout.itemAt(row, QtWidgets.QFormLayout.FieldRole) and layout.itemAt(row, QtWidgets.QFormLayout.FieldRole).widget() is None:
+                        if (
+                            layout.itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                            and layout.itemAt(
+                                row, QtWidgets.QFormLayout.FieldRole
+                            ).widget()
+                            is None
+                        ):
                             continue
-                        if layout.itemAt(row, QtWidgets.QFormLayout.FieldRole) and layout.itemAt(row, QtWidgets.QFormLayout.FieldRole).widget() == new_add_distance_btn:
+                        if (
+                            layout.itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                            and layout.itemAt(
+                                row, QtWidgets.QFormLayout.FieldRole
+                            ).widget()
+                            == new_add_distance_btn
+                        ):
                             break
-                        if layout.itemAt(row, QtWidgets.QFormLayout.FieldRole) and layout.itemAt(row, QtWidgets.QFormLayout.FieldRole).widget() == add_distance_btn:
-                            label_item = layout.itemAt(row, QtWidgets.QFormLayout.LabelRole)
+                        if (
+                            layout.itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                            and layout.itemAt(
+                                row, QtWidgets.QFormLayout.FieldRole
+                            ).widget()
+                            == add_distance_btn
+                        ):
+                            label_item = layout.itemAt(
+                                row, QtWidgets.QFormLayout.LabelRole
+                            )
                             label_widget = label_item.widget() if label_item else None
                             layout.removeRow(row)
                             layout.insertRow(row, label_widget, new_add_distance_btn)
@@ -330,16 +434,24 @@ class ImageViewer(QtWidgets.QWidget):
                         layout.addRow(new_add_distance_btn)
                 else:
                     layout.insertWidget(idx, new_add_distance_btn)
-            setattr(self, "add_distance_btn", new_add_distance_btn)
+            self.add_distance_btn = new_add_distance_btn
             # Reconnecte le bon signal
             new_add_distance_btn.clicked.connect(self.add_distance_to_library)
         # Remove a distance
-        remove_distance_btn = self.findChild(QtWidgets.QPushButton, "remove_distance_btn")
+        remove_distance_btn = self.findChild(
+            QtWidgets.QPushButton, "remove_distance_btn"
+        )
         if remove_distance_btn:
             tooltip = "Remove a distance measurement from the library"
-            new_remove_distance_btn = CustomToolTipButton(remove_distance_btn.text(), tooltip, self)
+            new_remove_distance_btn = CustomToolTipButton(
+                remove_distance_btn.text(), tooltip, self
+            )
             new_remove_distance_btn.setObjectName("remove_distance_btn")
-            layout = remove_distance_btn.parentWidget().layout() if remove_distance_btn.parentWidget() else None
+            layout = (
+                remove_distance_btn.parentWidget().layout()
+                if remove_distance_btn.parentWidget()
+                else None
+            )
             if layout:
                 idx = layout.indexOf(remove_distance_btn)
                 layout.removeWidget(remove_distance_btn)
@@ -347,12 +459,32 @@ class ImageViewer(QtWidgets.QWidget):
                 # Fix for QFormLayout
                 if isinstance(layout, QtWidgets.QFormLayout):
                     for row in range(layout.rowCount()):
-                        if layout.itemAt(row, QtWidgets.QFormLayout.FieldRole) and layout.itemAt(row, QtWidgets.QFormLayout.FieldRole).widget() is None:
+                        if (
+                            layout.itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                            and layout.itemAt(
+                                row, QtWidgets.QFormLayout.FieldRole
+                            ).widget()
+                            is None
+                        ):
                             continue
-                        if layout.itemAt(row, QtWidgets.QFormLayout.FieldRole) and layout.itemAt(row, QtWidgets.QFormLayout.FieldRole).widget() == new_remove_distance_btn:
+                        if (
+                            layout.itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                            and layout.itemAt(
+                                row, QtWidgets.QFormLayout.FieldRole
+                            ).widget()
+                            == new_remove_distance_btn
+                        ):
                             break
-                        if layout.itemAt(row, QtWidgets.QFormLayout.FieldRole) and layout.itemAt(row, QtWidgets.QFormLayout.FieldRole).widget() == remove_distance_btn:
-                            label_item = layout.itemAt(row, QtWidgets.QFormLayout.LabelRole)
+                        if (
+                            layout.itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                            and layout.itemAt(
+                                row, QtWidgets.QFormLayout.FieldRole
+                            ).widget()
+                            == remove_distance_btn
+                        ):
+                            label_item = layout.itemAt(
+                                row, QtWidgets.QFormLayout.LabelRole
+                            )
                             label_widget = label_item.widget() if label_item else None
                             layout.removeRow(row)
                             layout.insertRow(row, label_widget, new_remove_distance_btn)
@@ -361,10 +493,10 @@ class ImageViewer(QtWidgets.QWidget):
                         layout.addRow(new_remove_distance_btn)
                 else:
                     layout.insertWidget(idx, new_remove_distance_btn)
-            setattr(self, "remove_distance_btn", new_remove_distance_btn)
+            self.remove_distance_btn = new_remove_distance_btn
             # Reconnecte le bon signal
             new_remove_distance_btn.clicked.connect(self.remove_distance_from_library)
-        
+
         # Now load preset and image after all widgets are initialized
         self.load_last_preset()
         self.load_last_image()
@@ -379,9 +511,9 @@ class ImageViewer(QtWidgets.QWidget):
             left_scroll.setVisible(not left_scroll.isVisible())
             # Change le texte du bouton selon l'état
             if left_scroll.isVisible():
-                self.toggleLeftPanelButton.setText("☰") #⯇
+                self.toggleLeftPanelButton.setText("☰")  # ⯇
             else:
-                self.toggleLeftPanelButton.setText("☰") #⯈
+                self.toggleLeftPanelButton.setText("☰")  # ⯈
 
             # Réapplique les tailles min/max des widgets du layout
             object_distance = self.findChild(QtWidgets.QLineEdit, "object_distance")
@@ -402,7 +534,6 @@ class ImageViewer(QtWidgets.QWidget):
                 distance_combo.setMaximumWidth(130)
                 distance_combo.setMinimumHeight(27)
                 distance_combo.setMaximumHeight(27)
-            
 
         # Ajout de marge dans le leftPanel
         left_Layout = self.findChild(QtWidgets.QWidget, "leftLayout")
@@ -416,23 +547,31 @@ class ImageViewer(QtWidgets.QWidget):
         # Ajout d'un spacing haut et bas dans le leftPanel
         save_object_btn = self.findChild(QtWidgets.QPushButton, "save_object_btn")
         if save_object_btn:
-            save_object_btn.setStyleSheet("margin-bottom: 8px; margin-left: 6px; margin-right: 6px;")
+            save_object_btn.setStyleSheet(
+                "margin-bottom: 8px; margin-left: 6px; margin-right: 6px;"
+            )
         # Ajout d'un spacing droite et gauche à tous les élements du leftPanel
-        for element in self.findChildren((QtWidgets.QPushButton, QtWidgets.QLabel, QtWidgets.QGroupBox, QtWidgets.QComboBox, QtWidgets.QLineEdit, QtWidgets.QDateEdit)):
+        for element in self.findChildren(
+            (
+                QtWidgets.QPushButton,
+                QtWidgets.QLabel,
+                QtWidgets.QGroupBox,
+                QtWidgets.QComboBox,
+                QtWidgets.QLineEdit,
+                QtWidgets.QDateEdit,
+            )
+        ):
             # N'applique pas la marge aux boutons save_object_btn et load_preset_btn
             if element is save_object_btn:
                 continue
-            if isinstance(element, QtWidgets.QPushButton):
-                element.setStyleSheet("margin-left: 6px; margin-right: 6px;")
-            elif isinstance(element, QtWidgets.QLabel):
-                element.setStyleSheet("margin-left: 6px; margin-right: 6px;")
-            elif isinstance(element, QtWidgets.QGroupBox):
-                element.setStyleSheet("margin-left: 6px; margin-right: 6px;")
-            elif isinstance(element, QtWidgets.QComboBox):
-                element.setStyleSheet("margin-left: 6px; margin-right: 6px;")
-            elif isinstance(element, QtWidgets.QLineEdit):
-                element.setStyleSheet("margin-left: 6px; margin-right: 6px;")
-            elif isinstance(element, QtWidgets.QDateEdit):
+            if (
+                isinstance(element, QtWidgets.QPushButton)
+                or isinstance(element, QtWidgets.QLabel)
+                or isinstance(element, QtWidgets.QGroupBox)
+                or isinstance(element, QtWidgets.QComboBox)
+                or isinstance(element, QtWidgets.QLineEdit)
+                or isinstance(element, QtWidgets.QDateEdit)
+            ):
                 element.setStyleSheet("margin-left: 6px; margin-right: 6px;")
         # Ajoute un Spacing aux QLabel titres de groupbox
         groupbox_ = [
@@ -440,14 +579,19 @@ class ImageViewer(QtWidgets.QWidget):
             "barlow_group",
             "camera_group",
             "distance_group",
-            "skyfield_group"
+            "skyfield_group",
         ]
         for gb_name in groupbox_:
             groupbox = self.findChild(QtWidgets.QGroupBox, gb_name)
             if groupbox:
                 layout = groupbox.layout()
                 if layout:
-                    l, t, r, b = layout.contentsMargins().left(), layout.contentsMargins().top(), layout.contentsMargins().right(), layout.contentsMargins().bottom()
+                    l, _, r, b = (
+                        layout.contentsMargins().left(),
+                        layout.contentsMargins().top(),
+                        layout.contentsMargins().right(),
+                        layout.contentsMargins().bottom(),
+                    )
                     layout.setContentsMargins(l, 2, r, b)
 
         # Barlow/reducer UI
@@ -458,6 +602,7 @@ class ImageViewer(QtWidgets.QWidget):
             else:
                 self.barlow_value_label.hide()
                 self.barlow_value_edit.hide()
+
         self.barlow_checkbox.stateChanged.connect(on_barlow_checked)
         self.barlow_value_label.hide()
         self.barlow_value_edit.hide()
@@ -467,16 +612,29 @@ class ImageViewer(QtWidgets.QWidget):
         if left_panel:
             left_panel.setMinimumSize(0, 0)
             # Correction clé : forcer le leftPanel à suivre la largeur du scroll area
-            left_panel.setSizePolicy(QtWidgets.QSizePolicy.Ignored, left_panel.sizePolicy().verticalPolicy())
+            left_panel.setSizePolicy(
+                QtWidgets.QSizePolicy.Ignored, left_panel.sizePolicy().verticalPolicy()
+            )
             # Tip: QSizePolicy.Ignored forces the widget to always take the width imposed by its parent (splitter/scroll area),
             # which ensures it compresses perfectly with no horizontal scroll or overlap, even when reduced to the minimum.
 
             layout = left_panel.layout()
             if layout:
                 layout.setContentsMargins(2, 2, 2, 2)
-                
-            for child in left_panel.findChildren((QtWidgets.QPushButton, QtWidgets.QLabel, QtWidgets.QGroupBox, QtWidgets.QComboBox, QtWidgets.QLineEdit, QtWidgets.QDateEdit)):
-                child.setSizePolicy(QtWidgets.QSizePolicy.Expanding, child.sizePolicy().verticalPolicy())
+
+            for child in left_panel.findChildren(
+                (
+                    QtWidgets.QPushButton,
+                    QtWidgets.QLabel,
+                    QtWidgets.QGroupBox,
+                    QtWidgets.QComboBox,
+                    QtWidgets.QLineEdit,
+                    QtWidgets.QDateEdit,
+                )
+            ):
+                child.setSizePolicy(
+                    QtWidgets.QSizePolicy.Expanding, child.sizePolicy().verticalPolicy()
+                )
                 child.setMinimumWidth(0)
                 child.setMaximumWidth(16777215)
             splitter = left_panel.parent()
@@ -484,11 +642,10 @@ class ImageViewer(QtWidgets.QWidget):
                 index = splitter.indexOf(left_panel)
                 splitter.setCollapsible(index, True)
 
-
-
-##################################################################################################################
+        ##################################################################################################################
 
         self.apply_button_effects()
+
     def apply_button_effects(self):
         def set_shadow_color(btn, color):
             effect = btn.graphicsEffect()
@@ -496,7 +653,7 @@ class ImageViewer(QtWidgets.QWidget):
                 effect.setColor(QtGui.QColor(color))
 
         # Determine the shadow color according to the theme
-        theme_name = getattr(self, 'current_theme', None)
+        theme_name = getattr(self, "current_theme", None)
         if theme_name is None:
             # Essaye de récupérer depuis la combo
             combo = self.findChild(QtWidgets.QComboBox, "theme_combo")
@@ -507,7 +664,9 @@ class ImageViewer(QtWidgets.QWidget):
             "dark": ("#2663eb", "#7700ff"),
             "light": ("#5A384F", "#7700ff"),
         }
-        normal_color, pressed_color = theme_shadow_colors.get(theme_name, ("#2663eb", "#7700ff"))
+        normal_color, pressed_color = theme_shadow_colors.get(
+            theme_name, ("#2663eb", "#7700ff")
+        )
 
         for btn in self.findChildren(QtWidgets.QPushButton):
             shadow = QGraphicsDropShadowEffect()
@@ -516,25 +675,32 @@ class ImageViewer(QtWidgets.QWidget):
             shadow.setOffset(0, 4)
             btn.setGraphicsEffect(shadow)
             if btn.isCheckable():
+
                 def on_toggle(checked, b=btn):
                     set_shadow_color(b, pressed_color if checked else normal_color)
+
                 btn.toggled.connect(on_toggle)
             else:
                 btn.pressed.connect(lambda b=btn: set_shadow_color(b, pressed_color))
                 btn.released.connect(lambda b=btn: set_shadow_color(b, normal_color))
 
-##################################################################################################################
+    ##################################################################################################################
     def update_mouse_coords(self, pos):
         # Display the mouse coordinates in the view
         mouse_point = self.img_view.mapSceneToView(pos)
         x = mouse_point.x()
         y = mouse_point.y()
         self.coord_label.setText(f"X: {x:.1f}, Y: {y:.1f}")
-        self.coord_label.move(self.graphics_widget.width() - self.coord_label.width() - 10, self.graphics_widget.height() - self.coord_label.height() - 10)
-    
+        self.coord_label.move(
+            self.graphics_widget.width() - self.coord_label.width() - 10,
+            self.graphics_widget.height() - self.coord_label.height() - 10,
+        )
+
     def eventFilter(self, obj, event):
         # Display coordinates if the mouse moves on the view OR on the scene
-        if (obj is self.graphics_widget or obj is self.img_view.scene()) and event.type() == QtCore.QEvent.MouseMove:
+        if (
+            obj is self.graphics_widget or obj is self.img_view.scene()
+        ) and event.type() == QtCore.QEvent.MouseMove:
             if hasattr(event, "scenePos"):
                 pos = event.scenePos()
             else:
@@ -543,9 +709,12 @@ class ImageViewer(QtWidgets.QWidget):
             x = mouse_point.x()
             y = mouse_point.y()
             self.coord_label.setText(f"X: {x:.1f}, Y: {y:.1f}")
-            self.coord_label.move(self.graphics_widget.width() - self.coord_label.width() - 10, self.graphics_widget.height() - self.coord_label.height() - 10)
+            self.coord_label.move(
+                self.graphics_widget.width() - self.coord_label.width() - 10,
+                self.graphics_widget.height() - self.coord_label.height() - 10,
+            )
         return super().eventFilter(obj, event)
-    
+
     def calculer_longueur_reelle(self):
         try:
             D = float(self.object_distance.text().replace(",", "."))
@@ -560,7 +729,11 @@ class ImageViewer(QtWidgets.QWidget):
                 raise ValueError("No segment drawn.")
             p = float(self.camera_pixel_size.text().replace(",", "."))
             f = float(self.telescope_focal.text().replace(",", "."))
-            barlow = float(self.barlow_value_edit.text().replace(",", ".")) if self.barlow_checkbox.isChecked() and self.barlow_value_edit.text() else 1.0
+            barlow = (
+                float(self.barlow_value_edit.text().replace(",", "."))
+                if self.barlow_checkbox.isChecked() and self.barlow_value_edit.text()
+                else 1.0
+            )
             f_total = f * barlow
             p_mm = p * 0.001
             angle_rad = N * p_mm / f_total
@@ -570,32 +743,50 @@ class ImageViewer(QtWidgets.QWidget):
 
             # Display in the same unit as input
             if unit == "ly":
-                self.real_length_line.setText(f"Real object length: {real_length:.4f} ly")
+                self.real_length_line.setText(
+                    f"Real object length: {real_length:.4f} ly"
+                )
             elif unit == "pc":
-                self.real_length_line.setText(f"Real object length: {real_length:.4f} pc")
+                self.real_length_line.setText(
+                    f"Real object length: {real_length:.4f} pc"
+                )
             elif unit == "kpc":
                 # Affiche en Mpc si > 1e3 kpc, sinon en kpc
                 if real_length >= 1e3:
                     real_length_mpc = real_length / 1e3
-                    self.real_length_line.setText(f"Real object length: {real_length_mpc:.4f} Mpc")
+                    self.real_length_line.setText(
+                        f"Real object length: {real_length_mpc:.4f} Mpc"
+                    )
                 else:
-                    self.real_length_line.setText(f"Real object length: {real_length:.4f} kpc")
+                    self.real_length_line.setText(
+                        f"Real object length: {real_length:.4f} kpc"
+                    )
             elif unit == "Mpc":
                 # Affiche en kpc si < 1 Mpc, sinon en Mpc
                 if real_length < 1:
                     real_length_kpc = real_length * 1e3
-                    self.real_length_line.setText(f"Real object length: {real_length_kpc:.4f} kpc")
+                    self.real_length_line.setText(
+                        f"Real object length: {real_length_kpc:.4f} kpc"
+                    )
                 else:
-                    self.real_length_line.setText(f"Real object length: {real_length:.4f} Mpc")
+                    self.real_length_line.setText(
+                        f"Real object length: {real_length:.4f} Mpc"
+                    )
             else:  # km
                 if real_length > 1e9:
                     light_year = 9.461e12
                     real_length_ly = real_length / light_year
-                    self.real_length_line.setText(f"Real object length: {real_length_ly:.4f} ly")
+                    self.real_length_line.setText(
+                        f"Real object length: {real_length_ly:.4f} ly"
+                    )
                 else:
-                    self.real_length_line.setText(f"Real object length: {real_length:.2f} km")
+                    self.real_length_line.setText(
+                        f"Real object length: {real_length:.2f} km"
+                    )
         except Exception as e:
-            QtWidgets.QMessageBox.warning(self, "Error", f"Unable to calculate real length:\n{e}")
+            QtWidgets.QMessageBox.warning(
+                self, "Error", f"Unable to calculate real length:\n{e}"
+            )
         self.update_object_selector()
 
     def save_preset(self):
@@ -613,10 +804,7 @@ class ImageViewer(QtWidgets.QWidget):
         documents_dir = str(Path.home() / "Documents")
         default_path = os.path.join(documents_dir, f"preset_{default_name}.json")
         path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self,
-            "Save preset",
-            default_path,
-            "Presets JSON (*.json);;All files (*)"
+            self, "Save preset", default_path, "Presets JSON (*.json);;All files (*)"
         )
         if not path:
             return
@@ -650,7 +838,7 @@ class ImageViewer(QtWidgets.QWidget):
         if not path or not os.path.exists(path):
             # Fallback : preset par défaut dans le dossier du script
             name = self.telescope_name.text().strip() or "default"
-            path = resource_path(f"preset_{name}.json")
+            path = resource_path(os.path.join("Preset", f"preset_{name}.json"))
             if not os.path.exists(path):
                 return
             self.last_preset_path = path
@@ -664,7 +852,7 @@ class ImageViewer(QtWidgets.QWidget):
             self.barlow_checkbox.setChecked(data.get("barlow_checked", False))
             self.barlow_value_edit.setText(data.get("barlow_value", ""))
             self.camera_pixel_size.setText(data.get("camera_pixel_size", ""))
-        except Exception as e:
+        except Exception:
             pass
 
     def load_preset(self):
@@ -672,7 +860,7 @@ class ImageViewer(QtWidgets.QWidget):
             self,
             "Load preset",
             self.last_preset_path or str(Path(__file__).parent),
-            "Presets JSON (*.json);;All files (*)"
+            "Presets JSON (*.json);;All files (*)",
         )
         if not path:
             return
@@ -716,12 +904,14 @@ class ImageViewer(QtWidgets.QWidget):
 
     def open_image(self):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open image", self.last_image_path or "",
-            "Images (*.fits *.tif *.tiff *.jpg *.jpeg *.png *.bmp *.gif *.webp);;All files (*)"
+            self,
+            "Open image",
+            self.last_image_path or "",
+            "Images (*.fits *.tif *.tiff *.jpg *.jpeg *.png *.bmp *.gif *.webp);;All files (*)",
         )
         if not path:
             return
-        if path.lower().endswith('.fits'):
+        if path.lower().endswith(".fits"):
             with fits.open(path) as hdul:
                 data = hdul[0].data
             if data.ndim == 3:
@@ -735,10 +925,14 @@ class ImageViewer(QtWidgets.QWidget):
                 img = np.zeros_like(data, dtype=np.float32)
                 for i in range(3):
                     channel = data[..., i]
-                    img[..., i] = (channel - np.nanmin(channel)) / (np.nanmax(channel) - np.nanmin(channel) + 1e-8)
+                    img[..., i] = (channel - np.nanmin(channel)) / (
+                        np.nanmax(channel) - np.nanmin(channel) + 1e-8
+                    )
             else:
                 data = data.astype(np.float32)
-                img = (data - np.nanmin(data)) / (np.nanmax(data) - np.nanmin(data) + 1e-8)
+                img = (data - np.nanmin(data)) / (
+                    np.nanmax(data) - np.nanmin(data) + 1e-8
+                )
             # Imposer +90° droite
             img = np.rot90(img, k=-1)
         else:
@@ -746,12 +940,14 @@ class ImageViewer(QtWidgets.QWidget):
                 pil_img = Image.open(path)
                 pil_img = ImageOps.exif_transpose(pil_img)
                 pil_img = pil_img.transpose(Image.ROTATE_270)
-                if pil_img.mode == "RGB":
-                    img = np.array(pil_img).astype(np.float32) / 255.0
+                if pil_img.mode in ("RGB", "RGBA", "P"):
+                    img = np.array(pil_img.convert("RGB")).astype(np.float32) / 255.0
                 else:
                     img = np.array(pil_img.convert("L")).astype(np.float32) / 255.0
             except Exception as e:
-                QtWidgets.QMessageBox.warning(self, "Error", f"Unable to open image:\n{e}")
+                QtWidgets.QMessageBox.warning(
+                    self, "Error", f"Unable to open image:\n{e}"
+                )
                 return
         self.original_img = img.copy()
         self.current_img = img
@@ -780,19 +976,17 @@ class ImageViewer(QtWidgets.QWidget):
         if self.last_image_path and os.path.exists(self.last_image_path):
             try:
                 self.open_image_from_path(self.last_image_path)
-                pass
-            except Exception as e:
+            except Exception:
                 pass
         else:
             pass
-
 
     def open_image_from_path(self, path):
         if not path:
             return
         if not os.path.exists(path):
             return
-        if path.lower().endswith('.fits'):
+        if path.lower().endswith(".fits"):
             try:
                 with fits.open(path) as hdul:
                     data = hdul[0].data
@@ -807,10 +1001,14 @@ class ImageViewer(QtWidgets.QWidget):
                     img = np.zeros_like(data, dtype=np.float32)
                     for i in range(3):
                         channel = data[..., i]
-                        img[..., i] = (channel - np.nanmin(channel)) / (np.nanmax(channel) - np.nanmin(channel) + 1e-8)
+                        img[..., i] = (channel - np.nanmin(channel)) / (
+                            np.nanmax(channel) - np.nanmin(channel) + 1e-8
+                        )
                 else:
                     data = data.astype(np.float32)
-                    img = (data - np.nanmin(data)) / (np.nanmax(data) - np.nanmin(data) + 1e-8)
+                    img = (data - np.nanmin(data)) / (
+                        np.nanmax(data) - np.nanmin(data) + 1e-8
+                    )
                 # Imposer +90° droite
                 img = np.rot90(img, k=-1)
             except Exception as e:
@@ -827,7 +1025,7 @@ class ImageViewer(QtWidgets.QWidget):
             except Exception as e:
                 raise Exception(f"Unable to open image: {e}")
 
-        self.original_img = img.copy()    
+        self.original_img = img.copy()
         self.current_img = img
         self.img_item.setImage(self.current_img, autoLevels=True)
         self.img_view.setAspectLocked(True)  # Permet l'affichage sans forcer le carré
@@ -904,11 +1102,15 @@ class ImageViewer(QtWidgets.QWidget):
         obj_path = obj_info["image"]
         pixmap = QPixmap(obj_path)
         if pixmap.isNull():
-            QtWidgets.QMessageBox.warning(self, "Error", f"Could not load {obj_info['image']}")
+            QtWidgets.QMessageBox.warning(
+                self, "Error", f"Could not load {obj_info['image']}"
+            )
             return
         obj_diameter_km = obj_info["diameter"]
         if self.last_segment_length_px is None:
-            QtWidgets.QMessageBox.warning(self, "Error", "Draw a segment first to set the scale.")
+            QtWidgets.QMessageBox.warning(
+                self, "Error", "Draw a segment first to set the scale."
+            )
             return
         # Recalcule la taille réelle du segment en km
         D = float(self.object_distance.text().replace(",", "."))
@@ -927,7 +1129,11 @@ class ImageViewer(QtWidgets.QWidget):
             D_km = D
         p = float(self.camera_pixel_size.text().replace(",", "."))
         f = float(self.telescope_focal.text().replace(",", "."))
-        barlow = float(self.barlow_value_edit.text().replace(",", ".")) if self.barlow_checkbox.isChecked() and self.barlow_value_edit.text() else 1.0
+        barlow = (
+            float(self.barlow_value_edit.text().replace(",", "."))
+            if self.barlow_checkbox.isChecked() and self.barlow_value_edit.text()
+            else 1.0
+        )
         f_total = f * barlow
         p_mm = p * 0.001
         N = self.last_segment_length_px
@@ -938,14 +1144,21 @@ class ImageViewer(QtWidgets.QWidget):
         if obj_name == "ISS":
             max_side = max(pixmap.width(), pixmap.height())
             scale_factor = (obj_diameter_km * px_per_km) / max_side
-            scaled_pixmap = pixmap.scaled(int(pixmap.width() * scale_factor), int(pixmap.height() * scale_factor), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(
+                int(pixmap.width() * scale_factor),
+                int(pixmap.height() * scale_factor),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
             obj_px = max(scaled_pixmap.width(), scaled_pixmap.height())
         else:
             obj_px = obj_diameter_km * px_per_km
             scaled_pixmap = pixmap.scaledToWidth(int(obj_px), Qt.SmoothTransformation)
         # Applique un miroir horizontal puis une rotation de 180°
         mirrored_pixmap = scaled_pixmap.transformed(QtGui.QTransform().scale(-1, 1))
-        final_pixmap = mirrored_pixmap.transformed(QtGui.QTransform().rotate(180), Qt.SmoothTransformation)
+        final_pixmap = mirrored_pixmap.transformed(
+            QtGui.QTransform().rotate(180), Qt.SmoothTransformation
+        )
         item = QGraphicsPixmapItem(final_pixmap)
         item.setZValue(10)
         item.setFlag(QGraphicsPixmapItem.ItemIsMovable, True)
@@ -971,7 +1184,9 @@ class ImageViewer(QtWidgets.QWidget):
         # Récupère le chemin de l'image de départ
         orig_path = self.last_image_path
         if not orig_path or not os.path.exists(orig_path):
-            QtWidgets.QMessageBox.warning(self, "Error", "Could not determine original image path.")
+            QtWidgets.QMessageBox.warning(
+                self, "Error", "Could not determine original image path."
+            )
             return
         orig_dir = os.path.dirname(orig_path)
         orig_name = os.path.splitext(os.path.basename(orig_path))[0]
@@ -983,7 +1198,7 @@ class ImageViewer(QtWidgets.QWidget):
             self,
             "Save image with objects",
             os.path.join(orig_dir, save_name),
-            "Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff)"
+            "Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff)",
         )
         if not save_path:
             return
@@ -992,12 +1207,14 @@ class ImageViewer(QtWidgets.QWidget):
         # Applique une rotation -90° (gauche) pour la sauvegarde
         if img.ndim == 2:
             img = np.rot90(img, k=1)
-            img = np.stack([img]*3, axis=-1)
+            img = np.stack([img] * 3, axis=-1)
         elif img.ndim == 3:
             img = np.rot90(img, k=1, axes=(0, 1))
         img_uint8 = np.clip(img * 255, 0, 255).astype(np.uint8)
-        h, w, c = img_uint8.shape
-        qimg = QtGui.QImage(img_uint8.tobytes(), w, h, 3*w, QtGui.QImage.Format_RGB888).copy()
+        h, w, _ = img_uint8.shape
+        qimg = QtGui.QImage(
+            img_uint8.tobytes(), w, h, 3 * w, QtGui.QImage.Format_RGB888
+        ).copy()
         # Prépare le painter
         painter = QtGui.QPainter(qimg)
         # Dessine chaque objet à la bonne position et taille
@@ -1005,7 +1222,9 @@ class ImageViewer(QtWidgets.QWidget):
             obj_pixmap = item.pixmap()
             # Applique un miroir horizontal avant la rotation -180°
             mirrored_pixmap = obj_pixmap.transformed(QtGui.QTransform().scale(-1, 1))
-            rotated_pixmap = mirrored_pixmap.transformed(QtGui.QTransform().rotate(180), Qt.SmoothTransformation)
+            rotated_pixmap = mirrored_pixmap.transformed(
+                QtGui.QTransform().rotate(180), Qt.SmoothTransformation
+            )
             imgitem_pos = self.img_item.mapFromScene(item.scenePos())
             x, y = imgitem_pos.x(), imgitem_pos.y()
             x_rot = h - y - obj_pixmap.height()
@@ -1016,11 +1235,38 @@ class ImageViewer(QtWidgets.QWidget):
         if not qimg.save(save_path):
             QtWidgets.QMessageBox.warning(self, "Error", "Failed to save image.")
         else:
-            QtWidgets.QMessageBox.information(self, "Saved", f"Image saved as:\n{save_path}")
+            QtWidgets.QMessageBox.information(
+                self, "Saved", f"Image saved as:\n{save_path}"
+            )
+
+    def get_user_distance_library_path(self):
+        # Place le fichier modifiable dans AppData/Local/Temp/Stellametrics/distance_library.json
+        temp_dir = os.path.join(tempfile.gettempdir(), "Stellametrics")
+        os.makedirs(temp_dir, exist_ok=True)
+        return os.path.join(temp_dir, "distance_library.json")
+
+    def get_default_distance_library_path(self):
+        # Fichier par défaut dans le bundle
+        return resource_path(os.path.join("Library", "distance_library.json"))
 
     def load_distance_library(self):
-        # Correction du chemin du fichier JSON
-        self.distance_library_path = resource_path(os.path.join("Library", "distance_library.json"))
+        self.distance_library_path = self.get_user_distance_library_path()
+        # Si le fichier utilisateur n'existe pas, le copier depuis le bundle
+        if not os.path.exists(self.distance_library_path):
+            try:
+                with open(
+                    self.get_default_distance_library_path(), "r", encoding="utf-8"
+                ) as fsrc:
+                    data = fsrc.read()
+                with open(self.distance_library_path, "w", encoding="utf-8") as fdst:
+                    fdst.write(data)
+            except Exception:
+                # Si la copie échoue, crée un fichier minimal
+                with open(self.distance_library_path, "w", encoding="utf-8") as fdst:
+                    json.dump(
+                        [{"name": "Andromeda", "value": 778000, "unit": "pc"}], fdst
+                    )
+        # Charger le fichier utilisateur
         try:
             with open(self.distance_library_path, "r", encoding="utf-8") as f:
                 self.distance_library = json.load(f)
@@ -1032,12 +1278,29 @@ class ImageViewer(QtWidgets.QWidget):
         for d in self.distance_library:
             self.distance_combo.addItem(f"{d['name']} ({d['value']} {d['unit']})")
 
+    def save_distance_library(self):
+        try:
+            with open(self.distance_library_path, "w", encoding="utf-8") as f:
+                json.dump(self.distance_library, f, indent=2)
+            # Affiche le chemin utilisé pour debug
+            QtWidgets.QMessageBox.information(
+                self,
+                "Debug",
+                f"distance_library.json enregistré dans :\n{self.distance_library_path}",
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Erreur",
+                f"Impossible d'enregistrer la bibliothèque de distances :\n{e}\nChemin : {self.distance_library_path}",
+            )
+
     def select_distance_from_library(self):
         idx = self.distance_combo.currentIndex()
         if idx >= 0 and idx < len(self.distance_library):
             d = self.distance_library[idx]
-            self.object_distance.setText(str(d['value']))
-            self.distance_unit.setCurrentText(d['unit'])
+            self.object_distance.setText(str(d["value"]))
+            self.distance_unit.setCurrentText(d["unit"])
         self.update_object_selector()
 
     def add_distance_to_library(self):
@@ -1047,13 +1310,17 @@ class ImageViewer(QtWidgets.QWidget):
         value, ok = QtWidgets.QInputDialog.getDouble(self, "Add distance", "Value:")
         if not ok:
             return
-        unit, ok = QtWidgets.QInputDialog.getItem(self, "Add distance", "Unit:", ["km", "ly", "pc", "kpc", "Mpc"], 0, False)
+        unit, ok = QtWidgets.QInputDialog.getItem(
+            self, "Add distance", "Unit:", ["km", "ly", "pc", "kpc", "Mpc"], 0, False
+        )
         if not ok:
             return
-        self.distance_library.append({"name": name.strip(), "value": value, "unit": unit})
+        self.distance_library.append(
+            {"name": name.strip(), "value": value, "unit": unit}
+        )
         self.save_distance_library()
         self.load_distance_library()
-        self.distance_combo.setCurrentIndex(len(self.distance_library)-1)
+        self.distance_combo.setCurrentIndex(len(self.distance_library) - 1)
         self.update_object_selector()
 
     def remove_distance_from_library(self):
@@ -1064,7 +1331,7 @@ class ImageViewer(QtWidgets.QWidget):
                 "Remove distance",
                 f"Are you sure you want to remove the distance '{self.distance_library[idx]['name']}' from the library?",
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                QtWidgets.QMessageBox.No
+                QtWidgets.QMessageBox.No,
             )
             if reply == QtWidgets.QMessageBox.Yes:
                 del self.distance_library[idx]
@@ -1099,9 +1366,21 @@ class ImageViewer(QtWidgets.QWidget):
                 D_km = D * 3.086e19
             else:
                 D_km = D
-            p = float(self.camera_pixel_size.text().replace(",", ".")) if self.camera_pixel_size.text() else 1.0
-            f = float(self.telescope_focal.text().replace(",", ".")) if self.telescope_focal.text() else 1.0
-            barlow = float(self.barlow_value_edit.text().replace(",", ".")) if self.barlow_checkbox.isChecked() and self.barlow_value_edit.text() else 1.0
+            p = (
+                float(self.camera_pixel_size.text().replace(",", "."))
+                if self.camera_pixel_size.text()
+                else 1.0
+            )
+            f = (
+                float(self.telescope_focal.text().replace(",", "."))
+                if self.telescope_focal.text()
+                else 1.0
+            )
+            barlow = (
+                float(self.barlow_value_edit.text().replace(",", "."))
+                if self.barlow_checkbox.isChecked() and self.barlow_value_edit.text()
+                else 1.0
+            )
             f_total = f * barlow
             p_mm = p * 0.001
             N = self.last_segment_length_px
@@ -1117,7 +1396,7 @@ class ImageViewer(QtWidgets.QWidget):
                 self.object_selector.addItem(name)
         if self.object_selector.count() == 0:
             for name in self.object_dict:
-                self.object_selector.addItem(name)        
+                self.object_selector.addItem(name)
 
     def fill_distance_with_skyfield(self):
         obj_name = self.skyfield_object_combo.currentText()
@@ -1126,11 +1405,12 @@ class ImageViewer(QtWidgets.QWidget):
         # Conversion date pour Skyfield
         try:
             from skyfield.api import load
+
             ts = load.timescale()
             t = ts.utc(date_qt.year(), date_qt.month(), date_qt.day())
             # Correction du chemin du fichier .bsp
             planets = load(resource_path(os.path.join("Library", "de421.bsp")))
-            earth = planets['earth']
+            earth = planets["earth"]
             # Mapping Skyfield
             skyfield_map = {
                 "Moon": "moon",
@@ -1145,7 +1425,9 @@ class ImageViewer(QtWidgets.QWidget):
                 "Pluto": "pluto barycenter",
             }
             if obj_name not in skyfield_map:
-                QtWidgets.QMessageBox.warning(self, "Error", "Object not supported by Skyfield.")
+                QtWidgets.QMessageBox.warning(
+                    self, "Error", "Object not supported by Skyfield."
+                )
                 return
             target = planets[skyfield_map[obj_name]]
             # Distance Terre-objet (en km)
@@ -1159,7 +1441,9 @@ class ImageViewer(QtWidgets.QWidget):
             self.object_distance.setText(f"{dist_km:.0f}")
             self.distance_unit.setCurrentText("km")
         except Exception as e:
-            QtWidgets.QMessageBox.warning(self, "Skyfield error", f"Error calculating distance:\n{e}")
+            QtWidgets.QMessageBox.warning(
+                self, "Skyfield error", f"Error calculating distance:\n{e}"
+            )
 
     def convert_distance_to_km(self, distance_str):
         # Convertit la distance au format numérique approprié (km)
@@ -1205,6 +1489,7 @@ class ImageViewer(QtWidgets.QWidget):
         def new_resize_event(event):
             if callable(old_resize_event):
                 old_resize_event(event)
+
         return new_resize_event
 
     def update_graphics_background(self):
@@ -1214,6 +1499,7 @@ class ImageViewer(QtWidgets.QWidget):
         self.graphics_widget.setBackground(bg_color)
         if hasattr(self, "img_view") and self.img_view is not None:
             self.img_view.setBackgroundColor(bg_color)
+
 
 class FramelessImageViewer(ImageViewer):
     def __init__(self, icon_path=None, theme_names=None, current_theme=None):
@@ -1226,28 +1512,36 @@ class FramelessImageViewer(ImageViewer):
         self._drag_pos = None
         self._resizing = False
         self._resize_margin = 8
-    
+
         # Couleur et épaisseur du bord externe
         # Couleurs de bordure selon le thème
         self._border_colors = {
             "dark": QtGui.QColor("#18195c"),
-            "light": QtGui.QColor("#3D314A")
+            "light": QtGui.QColor("#3D314A"),
         }
-        self._border_color = self._border_colors.get(current_theme.lower() if current_theme else "light", QtGui.QColor("#18195c"))
-        self._border_width = 8 
+        self._border_color = self._border_colors.get(
+            current_theme.lower() if current_theme else "light", QtGui.QColor("#18195c")
+        )
+        self._border_width = 8
         self._border_style = QtCore.Qt.SolidLine
         self._corner_radius = 20
-        self._window_shape = 'rounded'  # 'rectangle', 'rounded', 'circle'
+        self._window_shape = "rounded"  # 'rectangle', 'rounded', 'circle'
         self._gradient_enabled = True
-      
-        
+
         # Récupérer la barre de titre depuis l'UI
         self.title_bar = self.findChild(QtWidgets.QWidget, "CustomTitleBar")
         if self.title_bar:
             # Icone et titre
             icon_label = self.title_bar.findChild(QtWidgets.QLabel, "icon_label")
             if icon_label and icon_path:
-                icon_label.setPixmap(QtGui.QPixmap(resource_path(icon_path)).scaled(48, 48, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                icon_label.setPixmap(
+                    QtGui.QPixmap(resource_path(icon_path)).scaled(
+                        48,
+                        48,
+                        QtCore.Qt.KeepAspectRatio,
+                        QtCore.Qt.SmoothTransformation,
+                    )
+                )
             title_label = self.title_bar.findChild(QtWidgets.QLabel, "title_label")
             if title_label:
                 title_label.setText("Stellametrics")
@@ -1258,18 +1552,28 @@ class FramelessImageViewer(ImageViewer):
                 theme_combo.addItems(theme_names)
                 if current_theme and current_theme in theme_names:
                     theme_combo.setCurrentText(current_theme)
-                def on_theme_changed(theme_name): 
+
+                def on_theme_changed(theme_name):
                     app = QApplication.instance()
                     if app:
-                        qss_path = resource_path(os.path.join("Main", "StyleSheets", f"{theme_name.lower()}.qss"))
+                        qss_path = resource_path(
+                            os.path.join(
+                                PACKAGE_ROOT,
+                                "StyleSheets",
+                                f"{theme_name.lower()}.qss",
+                            )
+                        )
                         if os.path.exists(qss_path):
                             with open(qss_path, "r", encoding="utf-8") as f:
                                 app.setStyleSheet(f.read())
                     # Met à jour la couleur de bordure selon le thème
-                    self._border_color = self._border_colors.get(theme_name.lower(), QtGui.QColor("#18195c"))
+                    self._border_color = self._border_colors.get(
+                        theme_name.lower(), QtGui.QColor("#18195c")
+                    )
                     self.current_theme = theme_name.lower()
                     self.apply_button_effects()
                     self.update_graphics_background()
+
                 theme_combo.currentTextChanged.connect(on_theme_changed)
             # Boutons min, max, close
             min_btn = self.title_bar.findChild(QtWidgets.QPushButton, "min_btn")
@@ -1277,11 +1581,13 @@ class FramelessImageViewer(ImageViewer):
                 min_btn.clicked.connect(self.showMinimized)
             max_btn = self.title_bar.findChild(QtWidgets.QPushButton, "max_btn")
             if max_btn:
+
                 def on_max_restore():
                     if self.isMaximized():
                         self.showNormal()
                     else:
                         self.showMaximized()
+
                 max_btn.clicked.connect(on_max_restore)
             close_btn = self.title_bar.findChild(QtWidgets.QPushButton, "close_btn")
             if close_btn:
@@ -1297,7 +1603,7 @@ class FramelessImageViewer(ImageViewer):
             rect.left() + margin,
             rect.top() + margin,
             rect.width() - self._border_width,
-            rect.height() - self._border_width
+            rect.height() - self._border_width,
         )
 
         if self._gradient_enabled:
@@ -1305,7 +1611,7 @@ class FramelessImageViewer(ImageViewer):
                 "dark": ("#1a2a49", "#3c4153"),
                 "light": ("#C8AD7F", "#fff5db"),
             }
-            theme_name = getattr(self, 'current_theme', None)
+            theme_name = getattr(self, "current_theme", None)
             if theme_name is None:
                 combo = self.findChild(QtWidgets.QComboBox, "theme_combo")
                 if combo:
@@ -1322,7 +1628,7 @@ class FramelessImageViewer(ImageViewer):
         painter.setBrush(brush)
 
         # Dessine le fond et applique le masque
-        if self._window_shape == 'circle':
+        if self._window_shape == "circle":
             radius = min(border_rect.width(), border_rect.height()) / 2
             center = border_rect.center()
             painter.drawEllipse(center, radius, radius)
@@ -1331,16 +1637,18 @@ class FramelessImageViewer(ImageViewer):
                 int(center.x() - radius),
                 int(center.y() - radius),
                 int(2 * radius),
-                int(2 * radius)
+                int(2 * radius),
             )
             self.setMask(QtGui.QRegion(mask_rect, QtGui.QRegion.Ellipse))
-        elif self._window_shape == 'rounded':
-            painter.drawRoundedRect(border_rect, self._corner_radius, self._corner_radius)
+        elif self._window_shape == "rounded":
+            painter.drawRoundedRect(
+                border_rect, self._corner_radius, self._corner_radius
+            )
             mask_rect = QtCore.QRect(
                 int(border_rect.left()),
                 int(border_rect.top()),
                 int(border_rect.width()),
-                int(border_rect.height())
+                int(border_rect.height()),
             )
             self.setMask(QtGui.QRegion(mask_rect, QtGui.QRegion.Rectangle))
         else:
@@ -1351,10 +1659,12 @@ class FramelessImageViewer(ImageViewer):
         pen = QtGui.QPen(self._border_color, self._border_width, self._border_style)
         painter.setPen(pen)
         painter.setBrush(QtCore.Qt.NoBrush)
-        if self._window_shape == 'circle':
+        if self._window_shape == "circle":
             painter.drawEllipse(center, radius, radius)
-        elif self._window_shape == 'rounded':
-            painter.drawRoundedRect(border_rect, self._corner_radius, self._corner_radius)
+        elif self._window_shape == "rounded":
+            painter.drawRoundedRect(
+                border_rect, self._corner_radius, self._corner_radius
+            )
         else:
             painter.drawRect(border_rect)
 
@@ -1372,14 +1682,24 @@ class FramelessImageViewer(ImageViewer):
         if self._resizing:
             diff = event.globalPos() - self._resize_start
             new_geom = QtCore.QRect(self._resize_geom)
-            if self._resize_edge == 'right':
+            if self._resize_edge == "right":
                 new_geom.setWidth(max(400, self._resize_geom.width() + diff.x()))
-            elif self._resize_edge == 'bottom':
+            elif self._resize_edge == "bottom":
                 new_geom.setHeight(max(300, self._resize_geom.height() + diff.y()))
-            elif self._resize_edge == 'left':
-                new_geom.setLeft(min(self._resize_geom.right() - 400, self._resize_geom.left() + diff.x()))
-            elif self._resize_edge == 'top':
-                new_geom.setTop(min(self._resize_geom.bottom() - 300, self._resize_geom.top() + diff.y()))
+            elif self._resize_edge == "left":
+                new_geom.setLeft(
+                    min(
+                        self._resize_geom.right() - 400,
+                        self._resize_geom.left() + diff.x(),
+                    )
+                )
+            elif self._resize_edge == "top":
+                new_geom.setTop(
+                    min(
+                        self._resize_geom.bottom() - 300,
+                        self._resize_geom.top() + diff.y(),
+                    )
+                )
             self.setGeometry(new_geom)
         elif self._drag_pos and event.buttons() == QtCore.Qt.LeftButton:
             self.move(event.globalPos() - self._drag_pos)
@@ -1396,31 +1716,32 @@ class FramelessImageViewer(ImageViewer):
         rect = self.rect()
         margin = self._resize_margin
         if abs(pos.x() - rect.right()) < margin:
-            self._resize_edge = 'right'
+            self._resize_edge = "right"
             return True
         if abs(pos.x() - rect.left()) < margin:
-            self._resize_edge = 'left'
+            self._resize_edge = "left"
             return True
         if abs(pos.y() - rect.bottom()) < margin:
-            self._resize_edge = 'bottom'
+            self._resize_edge = "bottom"
             return True
         if abs(pos.y() - rect.top()) < margin:
-            self._resize_edge = 'top'
+            self._resize_edge = "top"
             return True
         self._resize_edge = None
         return False
 
     def _update_cursor(self, pos):
         if self._on_edge(pos):
-            if self._resize_edge in ('left', 'right'):
+            if self._resize_edge in ("left", "right"):
                 self.setCursor(QtCore.Qt.SizeHorCursor)
-            elif self._resize_edge in ('top', 'bottom'):
+            elif self._resize_edge in ("top", "bottom"):
                 self.setCursor(QtCore.Qt.SizeVerCursor)
         else:
             self.setCursor(QtCore.Qt.ArrowCursor)
 
+
 def save_last_theme(theme_name):
-    CONFIG_DIR = os.path.join(PROJECT_ROOT, "Stellametrics_Config")
+    CONFIG_DIR = get_config_dir()
     LAST_THEME_FILE = os.path.join(CONFIG_DIR, "Stellametrics_last_theme.txt")
     try:
         os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -1429,8 +1750,9 @@ def save_last_theme(theme_name):
     except Exception:
         pass
 
+
 def load_last_theme():
-    CONFIG_DIR = os.path.join(PROJECT_ROOT, "Stellametrics_Config")
+    CONFIG_DIR = get_config_dir()
     LAST_THEME_FILE = os.path.join(CONFIG_DIR, "Stellametrics_last_theme.txt")
     try:
         if os.path.exists(LAST_THEME_FILE):
@@ -1440,9 +1762,16 @@ def load_last_theme():
         pass
     return ""
 
+
+def main() -> None:
+    """Launch Stellametrics through the same file used by PyInstaller."""
+    runpy.run_path(__file__, run_name="__main__")
+
+
 if __name__ == "__main__":
     try:
         app = QtWidgets.QApplication(sys.argv)
+
         def load_fonts(font_base_name=None):
             fonts_dir = resource_path(os.path.join("Library", "fonts"))
             font_families = {}
@@ -1468,7 +1797,9 @@ if __name__ == "__main__":
                             font_path = os.path.join(fonts_dir, file)
                             font_id = QFontDatabase.addApplicationFont(font_path)
                             if font_id != -1:
-                                families = QFontDatabase.applicationFontFamilies(font_id)
+                                families = QFontDatabase.applicationFontFamilies(
+                                    font_id
+                                )
                                 if families:
                                     font_families[families[0]] = font_path
                             else:
@@ -1476,16 +1807,15 @@ if __name__ == "__main__":
             return font_families
 
         # Utilisation :
-        FONT_FAMILIES = load_fonts() # charge toutes les polices
+        FONT_FAMILIES = load_fonts()  # charge toutes les polices
         # serena_family = list(load_fonts("Serena").keys())[0] # charge une police précise
 
-
-        icon_path = resource_path(os.path.join("Assets", "Icon", "icon.png"))
+        icon_path = resource_path(os.path.join("Assets", "Icon", "icon.svg"))
         app.setWindowIcon(QtGui.QIcon(icon_path))
 
-        # Chargement des stylesheets 
+        # Chargement des stylesheets
         STYLESHEETS = {}
-        styles_dir = resource_path(os.path.join("Main", "StyleSheets"))
+        styles_dir = resource_path(os.path.join(PACKAGE_ROOT, "StyleSheets"))
         for path in glob.glob(os.path.join(styles_dir, "*.qss")):
             theme_name = os.path.splitext(os.path.basename(path))[0].lower()
             with open(path, "r", encoding="utf-8") as f:
@@ -1496,15 +1826,21 @@ if __name__ == "__main__":
         app.setStyleSheet(STYLESHEETS[current_theme])
 
         # Création de la fenêtre principale avec sélecteur de thème
-        win = FramelessImageViewer(icon_path=icon_path, theme_names=list(STYLESHEETS.keys()), current_theme=current_theme)
+        win = FramelessImageViewer(
+            icon_path=icon_path,
+            theme_names=list(STYLESHEETS.keys()),
+            current_theme=current_theme,
+        )
+
         # Connexion du signal de changement de thème
         def on_theme_changed(theme_name):
             if theme_name in STYLESHEETS:
                 app.setStyleSheet(STYLESHEETS[theme_name])
-                win.graphics_widget.style().polish(win.graphics_widget) 
-                win.update_graphics_background() 
-                win.graphics_widget.update() 
+                win.graphics_widget.style().polish(win.graphics_widget)
+                win.update_graphics_background()
+                win.graphics_widget.update()
                 save_last_theme(theme_name)
+
         if hasattr(win, "title_bar") and hasattr(win.title_bar, "theme_changed"):
             win.title_bar.theme_changed.connect(on_theme_changed)
         win.setWindowIcon(QtGui.QIcon(icon_path))
