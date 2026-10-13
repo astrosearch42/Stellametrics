@@ -1,140 +1,296 @@
-
-
-
 # Stellametrics
 
-Stellametrics is a cross-platform PyQt5 application for visualizing, measuring, and comparing astronomical images (FITS, PNG, JPG, etc.). It allows you to measure distances, overlay reference objects, and manage instrument presets.
+Stellametrics est une application de bureau destinée à l'analyse et à la
+mesure d'images astronomiques. Elle est écrite en Python avec PyQt5 et
+fonctionne avec les images FITS ainsi qu'avec les formats courants comme PNG,
+JPG et TIFF.
 
-## Features
-- View FITS and standard image formats
-- Draw segments and calculate real distances
-- Overlay reference objects (Earth, Jupiter, France, USA, etc.)
-- Save/load instrument presets
-- Customizable themes
-- Windows/macOS/Linux support (Python 3.8+)
-- Build a standalone executable (Windows)
-- Batch convert SVG to ICO/PNG for app icons (CloudConvert API supported)
+## Fonctionnalités
 
-## Installation
+- Ouverture et affichage d'images astronomiques.
+- Lecture des images FITS et des images classiques.
+- Mesure d'un segment directement sur l'image.
+- Conversion de la mesure en distance réelle à partir des paramètres de
+  l'instrument.
+- Gestion du télescope, de la focale, du diamètre, du facteur de Barlow et de
+  la taille des pixels de la caméra.
+- Bibliothèque personnalisable de distances et d'unités.
+- Calculs astronomiques avec Skyfield et l'éphéméride `de421.bsp`.
+- Ajout d'objets de référence à l'image : Terre, Jupiter, France et
+  États-Unis.
+- Rotation, suppression et sauvegarde des images avec objets superposés.
+- Enregistrement et chargement de presets d'instrument.
+- Thèmes clair et sombre.
+- Interface sans bordure avec réduction, maximisation, fermeture et
+  redimensionnement de la fenêtre.
+- Exécution depuis les sources ou sous la forme d'un exécutable Windows
+  autonome.
 
-### 1. Quick & Easy Installation with the Executable
+## Présentation illustrée
 
-The fastest and easiest way to use Stellametrics is to download the pre-built executable:
+Les captures suivantes présentent les principales fonctionnalités de
+Stellametrics et le déroulement d'une mesure.
 
-1. Download the file `!Executable/Stellametrics.exe`.
-   - You can also download the folder itself to get images to test the app
-2. Place `Stellametrics.exe` wherever you want (Desktop, Documents, external drive, etc.).
-3. Double-click `Stellametrics.exe` to launch the application. No need to install Python or any dependencies.
-4. (Optional) Create a shortcut for quick access: right-click on `Stellametrics.exe` → "Create shortcut" → move the shortcut to your Desktop.
+### Modes clair et sombre
 
-**This method is highly recommended for users who want a fast and hassle-free setup.**
+Stellametrics propose deux thèmes d'interface. Le mode clair facilite la
+lecture dans un environnement lumineux, tandis que le mode sombre est adapté
+à l'observation et au traitement d'images dans un environnement peu éclairé.
 
-### 2. Installation with Git Clone
+#### Mode clair
 
----
-Linux prerequisites:
-If you are on Linux, you may need to install some system packages first:
-```bash
-sudo apt install python3.11-venv git binutils
+![Interface de Stellametrics en mode clair](Photo_appli/Light.jpg)
+
+#### Mode sombre
+
+![Interface de Stellametrics en mode sombre](Photo_appli/Dark.jpg)
+
+### Mesurer la taille d'un objet
+
+L'outil de segment permet de mesurer la taille apparente d'un objet sur
+l'image. On trace un segment entre deux points de l'objet afin d'obtenir sa
+taille en pixels et de préparer le calcul de sa taille ou de sa distance
+réelle.
+
+![Mesure d'un objet avec un segment](Photo_appli/Dark_segment.jpg)
+
+### Superposer un objet de référence
+
+Après avoir calculé le rapport de taille à partir de la mesure, il est
+possible de superposer un objet de référence sur l'image. Dans cet exemple,
+la Terre est ajoutée afin de comparer visuellement sa taille avec l'objet
+observé.
+
+![Superposition de la Terre sur une image](Photo_appli/Dark_obj.jpg)
+
+### Volet des options et des calculs Skyfield
+
+Le volet latéral regroupe les options de l'application et les paramètres
+utiles aux calculs astronomiques. La capture ci-dessous montre notamment les
+options liées à Skyfield et à la date utilisée pour les calculs.
+
+![Volet des options Skyfield](Photo_appli/Dark_Skyfield.jpg)
+
+## Dossier `!Executable`
+
+Le dossier `!Executable` contient une version déjà compilée de Stellametrics
+pour Windows :
+
+```text
+!Executable/
+├── Stellametrics.exe
+└── Examples/
+    ├── README_Examples.md
+    ├── SunTEST.tif
+    └── JupiterTEST.png
 ```
 
-- `python3.11-venv`  : provides the Python 3.11 virtual environment module (for creating isolated Python environments)
-- `git`  : version control system used to clone and manage the repository
-- `binutils`  : a set of binary tools required by some Python packages during installation
----
+Si vous souhaitez utiliser l'application sans installer Python, uv ou les
+dépendances du projet, lancez directement `!Executable\Stellametrics.exe`.
+L'exécutable est autonome et peut être déplacé dans un autre dossier ou
+utilisé avec un raccourci Windows.
 
+Le sous-dossier `!Executable\Examples` contient des images de test permettant
+d'essayer rapidement l'ouverture, l'affichage et les outils de mesure de
+l'application. Pour produire une nouvelle version de l'exécutable à partir
+des sources, utilisez plutôt le script
+`scripts\build_exe.ps1`, décrit dans la section de compilation.
 
-1. Create and activate a Python virtual environment (Recommended):
-   ```bash
-   cd <your-folder>   # (enter in the folder where you want to install the project)
-   python -m venv Stellametrics.env
-   # On Windows:
-   Stellametrics.env\Scripts\activate
-   # On macOS/Linux:
-   source Stellametrics.env/bin/activate
-   ```
-   **To deactivate the virtual environment just write ```deactivate```**
-2. Once activated, clone the repository in the environment:
-   ```bash
-   cd Stellametrics.env
-   git clone https://github.com/astrosearch42/Stellametrics
-   cd Stellametrics
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Run the application:
-   ```bash
-   python Main/Stellametrics.py
-   ```
+## Structure du projet
 
-## Building a Standalone Executable (Windows)
-1. Install PyInstaller (in the virtual environment):
-   ```bash
-   pip install pyinstaller
-   ```
-2. In the project root, run:
-   ```powershell
-   pyinstaller --onefile --windowed --icon "Assets/Icon/icon.ico" \
-     --add-data "Assets;Assets" \
-     --add-data "Main/ImageViewer.ui;Main" \
-     --add-data "Main/StyleSheets;Main/StyleSheets" \
-     --add-data "Library/distance_library.json;Library" \
-     --add-data "Library/de421.bsp;Library" \
-     --add-data "Library/fonts;Library/fonts" \
-     --add-data "Preset;Preset" \
-     --add-data "Stellametrics_Config;Stellametrics_Config" \
-     --strip \
-     Main/Stellametrics.py
-   ```
-   - On Windows, use `;` as the separator in `--add-data`. On macOS/Linux, use `:` instead.
-   - If you encounter issues with the multi-line command, use a single line (see PyInstaller docs) or run this line :
-   1. Windows:
-   ```powershell
-   pyinstaller --onefile --windowed --icon "Assets/Icon/icon.ico" --add-data "Assets;Assets" --add-data "Main/ImageViewer.ui;Main" --add-data "Main/StyleSheets;Main/StyleSheets" --add-data "Library/distance_library.json;Library" --add-data "Library/de421.bsp;Library" --add-data "Library/fonts;Library/fonts" --add-data "Preset;Preset" --add-data "Stellametrics_Config;Stellametrics_Config" --strip Main/Stellametrics.py
-   ```
-   2. macOS/Linux:
-   ```powershell
-   pyinstaller --onefile --windowed --icon "Assets/Icon/icon.ico" --add-data "Assets:Assets" --add-data "Main/ImageViewer.ui:Main" --add-data "Main/StyleSheets:Main/StyleSheets" --add-data "Library/distance_library.json:Library" --add-data "Library/de421.bsp:Library" --add-data "Library/fonts:Library/fonts" --add-data "Preset:Preset" --add-data "Stellametrics_Config:Stellametrics_Config" --strip Main/Stellametrics.py
-   ```
-
-3. The executable will be created in the `dist` folder as `Stellametrics.exe`.
-
-## Usage
-- Launch the app with `python Main/Stellametrics.py` or by opening the executable.
-- To create a desktop shortcut (Windows):
-  1. Open the `dist` folder where `Stellametrics.exe` is located.
-  2. Right-click on `Stellametrics.exe` and select "Create shortcut".
-  3. Move the shortcut to your Desktop or any convenient location for quick access.
-- **Note:** You can move the `Stellametrics.exe` file anywhere you want (e.g., Desktop, Documents, external drive, etc.). The application is fully portable as long as all required files are included during packaging.
-- Open images, draw segments, add reference objects, and save your presets.
-  (Images are provided in the folder `Assets/Examples/` to test by yourself.)
-- For advanced usage and troubleshooting, see the code comments and issues on GitHub.
-
-## Icon Conversion (SVG to ICO/PNG)
-To use a custom icon:
-1. Place your SVG file(s) in `Assests/Icon/`.
-2. Use the provided script to convert all SVGs to ICO and PNG:
-   ```bash
-   python objects_png/Icon/svg2ico-png.py
-   ```
-   - Requires a CloudConvert API key (see script for details), and so a limited usage (10 conversions a day).
-   - Alternatively, use any online converter (e.g. https://cloudconvert.com/svg-to-ico) and place the resulting `icon.ico` in `Assets/Icon/`.
-
-
-## Uninstallation
-
-#### 1. Uninstall the Executable (Windows)
-To uninstall Stellametrics if you used the pre-built executable, simply delete the file `Stellametrics.exe` (and its shortcut if you created one). No other steps are required.
-
-#### 2. Remove the Python Environment (Source Install)
-If you installed from source and created a virtual environment, you can remove it by deleting the environment folder. For example:
-
-```bash
-rm -rf ./Stellametrics.env # Outside the folder
+```text
+.
+├── Assets/                         Images, icônes et exemples
+├── Photo_appli/                    Captures d'écran de l'application
+├── Library/                        Bibliothèque de distances et de données
+│   ├── de421.bsp                   Éphéméride Skyfield
+│   └── fonts/                      Polices utilisées par l'application
+├── Preset/                         Presets fournis avec le projet
+├── ConfigStellametrics/            Configuration en mode développement
+├── scripts/
+│   └── build_exe.ps1               Script de compilation Windows
+├── src/stellametrics/
+│   ├── Stellametrics.py            Fichier principal de l'application
+│   ├── ImageViewer.ui              Interface Qt
+│   └── StyleSheets/                Thèmes QSS
+├── pyproject.toml                  Configuration uv et point d'entrée
+└── uv.lock                         Versions verrouillées des dépendances
 ```
-This will completely remove the isolated Python environment and all installed dependencies. If you only want to remove the cloned source code, simply delete the `Stellametrics` folder.
 
-## Author
-- GitHub: [Maxime Bertrand](https://github.com/astrosearch42)
+## Prérequis
+
+- Python 3.13 ou une version plus récente.
+- [uv](https://docs.astral.sh/uv/).
+- Windows pour générer l'exécutable avec le script fourni.
+
+`uv` crée et utilise automatiquement l'environnement virtuel du projet. Il
+n'est pas nécessaire d'activer manuellement `.venv`.
+
+## Installation et lancement
+
+Depuis la racine du dépôt :
+
+```powershell
+uv sync
+uv run stellametrics
+```
+
+Le point d'entrée `stellametrics` est déclaré dans `pyproject.toml` et appelle
+le vrai fichier principal :
+
+```text
+src/stellametrics/Stellametrics.py
+```
+
+L'exécution directe reste également possible :
+
+```powershell
+uv run python src/stellametrics/Stellametrics.py
+```
+
+## Compilation de l'exécutable Windows
+
+Le groupe de dépendances `build` contient PyInstaller. Le script de compilation
+installe ou synchronise les dépendances nécessaires, vérifie la présence des
+ressources, puis construit un exécutable unique.
+
+Depuis la racine du dépôt, dans PowerShell :
+
+```powershell
+.\scripts\build_exe.ps1
+```
+
+Le résultat est créé ici :
+
+```text
+dist\Stellametrics.exe
+```
+
+Le script utilise toujours
+`src\stellametrics\Stellametrics.py` comme fichier principal et ajoute les
+ressources nécessaires au bundle :
+
+- `Assets`
+- `ImageViewer.ui`
+- les feuilles de style QSS
+- `Library\distance_library.json`
+- `Library\de421.bsp`
+- `Library\fonts`
+- `Preset`
+
+Pour lancer manuellement PyInstaller, l'environnement de build peut être
+préparé avec :
+
+```powershell
+uv sync --group build
+uv run --group build pyinstaller --onefile --windowed `
+  --name Stellametrics `
+  --icon "Assets\Icon\icon.ico" `
+  --add-data "Assets;Assets" `
+  --add-data "src\stellametrics\ImageViewer.ui;src\stellametrics" `
+  --add-data "src\stellametrics\StyleSheets;src\stellametrics\StyleSheets" `
+  --add-data "Library\distance_library.json;Library" `
+  --add-data "Library\de421.bsp;Library" `
+  --add-data "Library\fonts;Library\fonts" `
+  --add-data "Preset;Preset" `
+  src\stellametrics\Stellametrics.py
+```
+
+Le script `build_exe.ps1` est recommandé, car il évite les oublis de
+ressources et utilise les versions verrouillées par `uv.lock`.
+
+## Configuration et données utilisateur
+
+En développement, les chemins mémorisés sont stockés dans :
+
+```text
+ConfigStellametrics\
+```
+
+Avec l'exécutable PyInstaller, la configuration est persistante dans le
+répertoire utilisateur Windows :
+
+```text
+%LOCALAPPDATA%\Stellametrics\ConfigStellametrics\
+```
+
+On y trouve notamment les derniers chemins d'image et de preset ainsi que le
+dernier thème choisi. Ce dossier n'est pas placé dans le répertoire temporaire
+`_MEI...` de PyInstaller et n'est donc pas supprimé à la fermeture.
+
+La bibliothèque de distances modifiable est copiée dans un dossier temporaire
+utilisateur par l'application afin de ne pas modifier les ressources incluses
+dans l'exécutable.
+
+## Utilisation rapide
+
+1. Lancez l'application avec `uv run stellametrics` ou ouvrez
+   `dist\Stellametrics.exe`.
+2. Ouvrez une image avec le bouton d'ouverture.
+3. Configurez les paramètres de l'instrument.
+4. Activez le mode de mesure et dessinez un segment sur l'image.
+5. Sélectionnez une distance dans la bibliothèque ou renseignez les données
+   nécessaires pour calculer la distance réelle.
+6. Ajoutez éventuellement un objet de référence.
+7. Sauvegardez l'image, le preset ou les modifications de la bibliothèque.
+
+Des images d'exemple sont disponibles dans `Assets\Examples` et
+`!Executable\Examples`.
+
+## Dépannage
+
+### `uv` n'est pas reconnu
+
+Installez uv, ouvrez un nouveau terminal, puis vérifiez :
+
+```powershell
+uv --version
+```
+
+### Une ressource est introuvable dans l'exécutable
+
+Reconstruisez l'application avec :
+
+```powershell
+.\scripts\build_exe.ps1
+```
+
+Le script vérifie automatiquement les ressources avant de lancer PyInstaller.
+
+### Réinitialiser la configuration
+
+Fermez l'application puis supprimez le dossier suivant :
+
+```text
+%LOCALAPPDATA%\Stellametrics\ConfigStellametrics
+```
+
+La prochaine exécution recréera les fichiers nécessaires.
+
+## Développement
+
+Synchroniser les dépendances :
+
+```powershell
+uv sync
+```
+
+Lancer l'application :
+
+```powershell
+uv run stellametrics
+```
+
+Vérifier que le point d'entrée est importable :
+
+```powershell
+uv run python -c "from stellametrics.Stellametrics import main; print(main)"
+```
+
+## Licence et auteur
+
+Le projet est distribué sous licence Creative Commons
+Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). Voir
+[LICENCE](LICENCE).
+
+Auteur : [astrosearch42](https://github.com/astrosearch42)
